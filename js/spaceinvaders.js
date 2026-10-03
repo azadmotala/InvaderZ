@@ -162,7 +162,8 @@ function Game() {
     limitLevelIncrease: 25,
     ufoSpeed: 70,
     ufoMinInterval: 15,
-    ufoMaxInterval: 30
+    ufoMaxInterval: 30,
+    touchShipSpeed: 360
   };
 
   //  All state is in the variables below.
@@ -672,15 +673,18 @@ PlayState.prototype.update = function(game, dt) {
     this.ship.x += this.shipSpeed * dt;
   }
 
-  //  A touch drag moves the ship's target, and the ship heads there at the
-  //  same speed as the arrow keys, so touch players get no speed advantage.
-  if (game.touchDrag) {
+  //  A touch drag moves the ship's target and the ship follows it closely, up
+  //  to touchShipSpeed. Lifting your finger stops the ship where it is.
+  if (!game.touch) {
+    this.shipTargetX = null;
+    game.touchDrag = 0;
+  } else if (game.touchDrag) {
     var from = this.shipTargetX === null ? this.ship.x : this.shipTargetX;
     this.shipTargetX = Math.min(Math.max(from + game.touchDrag, game.gameBounds.left), game.gameBounds.right);
     game.touchDrag = 0;
   }
   if (this.shipTargetX !== null) {
-    var step = this.shipSpeed * dt;
+    var step = this.config.touchShipSpeed * dt;
     var gap = this.shipTargetX - this.ship.x;
     if (Math.abs(gap) <= step) {
       this.ship.x = this.shipTargetX;
