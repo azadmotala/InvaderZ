@@ -52,6 +52,7 @@ On a computer the buttons sit under the game. On a phone or tablet they're in th
 - If an invader reaches the bottom or crashes into your ship, the game ends right there.
 - Squids are worth 30 points, crabs 20 and octopuses 10, the same as the arcade game. Clear a wave and you get a bonus of 50 × that level.
 - The mystery UFO is usually worth 50 or 100, sometimes 150 and now and then 300. It comes every 15 to 30 seconds, but not once the fleet is down to its last 7 invaders.
+- Your high score is saved in your browser on that device, the moment you beat it. It shows during play, on the start screen and when the game ends.
 
 ### It gets harder
 
@@ -125,7 +126,7 @@ invaders/
 
 ## Credits
 
-Invaders is based on [spaceinvaders](https://github.com/dwmkerr/spaceinvaders) by Dave Kerr, which supplies the game engine, the starfield and the core gameplay. This version adds a pixel-art ship, the arcade game's three kinds of invader drawn in code with their marching poses and points, the heartbeat, the speed-up, the mystery UFO and the shields, an option to give every wave a new colour, Pause and Mute buttons, and touch controls for phones and tablets.
+Invaders is based on [spaceinvaders](https://github.com/dwmkerr/spaceinvaders) by Dave Kerr, which supplies the game engine, the starfield and the core gameplay. This version adds a pixel-art ship, the arcade game's three kinds of invader drawn in code with their marching poses and points, the heartbeat, the speed-up, the mystery UFO and the shields, a saved high score, an option to give every wave a new colour, Pause and Mute buttons, and touch controls for phones and tablets.
 
 ## License
 

@@ -155,6 +155,27 @@ var SHIELD_PIXELS = [
 ];
 var SHIELD_COLOUR = '#64dd17';
 
+//  The high score is kept in the browser, so it lasts between visits on the
+//  same device. Some browsers block storage, in private browsing for
+//  example; then the game still works, the best just isn't kept.
+var HIGH_SCORE_KEY = 'invaders.highScore';
+
+function loadHighScore() {
+  try {
+    return parseInt(window.localStorage.getItem(HIGH_SCORE_KEY), 10) || 0;
+  } catch (e) {
+    return 0;
+  }
+}
+
+function saveHighScore(score) {
+  try {
+    window.localStorage.setItem(HIGH_SCORE_KEY, String(score));
+  } catch (e) {
+    //  Storage is blocked or full, so this best won't be kept.
+  }
+}
+
 //  Invader body colours. Green is the original, like the invaders in the
 //  game this is based on.
 var INVADER_COLOURS = ['#ffa726', '#64dd17', '#2962ff'];
@@ -218,6 +239,11 @@ function Game() {
 
   //  Called whenever the state changes, so the page can update its buttons.
   this.onStateChange = null;
+
+  //  The best score on this device, and what it was when this game began,
+  //  to tell whether this game beat it.
+  this.highScore = loadHighScore();
+  this.highScoreAtStart = this.highScore;
 
   //  Invader colour: the original, or with randomColours on, a new colour
   //  for each wave.
@@ -384,6 +410,25 @@ Game.prototype.pickInvaderColour = function() {
   this.invaderColour = colour >= this.invaderColour ? colour + 1 : colour;
 };
 
+//  Starts a new game from level 1.
+Game.prototype.newGame = function() {
+  this.level = 1;
+  this.score = 0;
+  this.lives = 3;
+  this.highScoreAtStart = this.highScore;
+  this.moveToState(new LevelIntroState(1));
+};
+
+//  Adds points to the score, and saves a new high score as soon as it's
+//  reached, so closing the page mid-game doesn't lose it.
+Game.prototype.addScore = function(points) {
+  this.score += points;
+  if (this.score > this.highScore) {
+    this.highScore = this.score;
+    saveHighScore(this.highScore);
+  }
+};
+
 //  Pauses or resumes play. Does nothing outside of play.
 Game.prototype.togglePause = function() {
   var state = this.currentState();
@@ -503,15 +548,15 @@ WelcomeState.prototype.draw = function(game, dt, ctx) {
   } else {
     ctx.fillText("Press 'Space' or touch to start.", game.width / 2, game.height / 2);
   }
+  if (game.highScore > 0) {
+    ctx.fillText("High score: " + game.highScore, game.width / 2, game.height / 2 + 64);
+  }
 };
 
 WelcomeState.prototype.keyDown = function(game, keyCode) {
   if (keyCode == KEY_SPACE) {
     //  Space starts the game.
-    game.level = 1;
-    game.score = 0;
-    game.lives = 3;
-    game.moveToState(new LevelIntroState(game.level));
+    game.newGame();
   }
 };
 
@@ -535,17 +580,20 @@ GameOverState.prototype.draw = function(game, dt, ctx) {
   ctx.fillText("Game Over!", game.width / 2, game.height / 2 - 40);
   ctx.font = "16px Arial";
   ctx.fillText("You scored " + game.score + " and got to level " + game.level, game.width / 2, game.height / 2);
-  ctx.font = "16px Arial";
-  ctx.fillText(game.touchMode ? "Tap to play again." : "Press 'Space' to play again.", game.width / 2, game.height / 2 + 40);
+  if (game.score > game.highScoreAtStart) {
+    ctx.fillStyle = '#ffd54f';
+    ctx.fillText("New high score!", game.width / 2, game.height / 2 + 26);
+    ctx.fillStyle = '#ffffff';
+  } else {
+    ctx.fillText("High score: " + game.highScore, game.width / 2, game.height / 2 + 26);
+  }
+  ctx.fillText(game.touchMode ? "Tap to play again." : "Press 'Space' to play again.", game.width / 2, game.height / 2 + 52);
 };
 
 GameOverState.prototype.keyDown = function(game, keyCode) {
   if (keyCode == KEY_SPACE) {
     //  Space restarts the game.
-    game.lives = 3;
-    game.score = 0;
-    game.level = 1;
-    game.moveToState(new LevelIntroState(1));
+    game.newGame();
   }
 };
 
@@ -883,7 +931,7 @@ PlayState.prototype.update = function(game, dt) {
     if (shot.x >= ufo.x - ufo.width / 2 && shot.x <= ufo.x + ufo.width / 2 &&
       shot.y >= ufo.y - ufo.height / 2 && shot.y <= ufo.y + ufo.height / 2) {
       var points = UFO_POINTS[Math.floor(Math.random() * UFO_POINTS.length)];
-      game.score += points;
+      game.addScore(points);
       this.ufoScore = { points: points, x: ufo.x, y: ufo.y, timeLeft: 1 };
       this.rockets.splice(i, 1);
       this.ufo = null;
@@ -907,7 +955,7 @@ PlayState.prototype.update = function(game, dt) {
         //  this rocket again.
         this.rockets.splice(j--, 1);
         bang = true;
-        game.score += INVADER_TYPES[invader.type].points;
+        game.addScore(INVADER_TYPES[invader.type].points);
         break;
       }
     }
@@ -973,7 +1021,7 @@ PlayState.prototype.update = function(game, dt) {
 
   //  Check for victory
   if (this.invaders.length === 0) {
-    game.score += this.level * 50;
+    game.addScore(this.level * 50);
     game.level += 1;
     game.moveToState(new LevelIntroState(game.level));
   }
@@ -1048,12 +1096,14 @@ PlayState.prototype.draw = function(game, dt, ctx) {
   var textYpos = game.gameBounds.bottom + ((game.height - game.gameBounds.bottom) / 2) + 14 / 2;
   ctx.font = "14px Arial";
   ctx.fillStyle = '#ffffff';
-  var info = "Lives: " + game.lives;
+  //  Lives and level on the left, the score in the middle and the high score
+  //  on the right, so the three never overlap, even with six-figure scores.
   ctx.textAlign = "left";
-  ctx.fillText(info, game.gameBounds.left, textYpos);
-  info = "Score: " + game.score + ", Level: " + game.level;
+  ctx.fillText("Lives: " + game.lives + ", Level: " + game.level, game.gameBounds.left, textYpos);
+  ctx.textAlign = "center";
+  ctx.fillText("Score: " + game.score, game.width / 2, textYpos);
   ctx.textAlign = "right";
-  ctx.fillText(info, game.gameBounds.right, textYpos);
+  ctx.fillText("High score: " + game.highScore, game.gameBounds.right, textYpos);
 
   //  If we're in debug mode, draw bounds.
   if (this.config.debugMode) {
