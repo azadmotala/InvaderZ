@@ -642,8 +642,9 @@ PlayState.prototype.draw = function(game, dt, ctx) {
   //  Draw ship.
   // ctx.fillStyle = '#999999';
   // ctx.fillRect(this.ship.x - (this.ship.width / 2), this.ship.y - (this.ship.height / 2), this.ship.width, this.ship.height);
-    ctx.drawImage(this.ship.image, this.ship.x, this.ship.y, this.ship.width, this.ship.height);
-  
+  //  Positions are centres (collisions, rockets and bombs all use them that
+  //  way), so draw sprites centred on them.
+  ctx.drawImage(this.ship.image, this.ship.x - this.ship.width / 2, this.ship.y - this.ship.height / 2, this.ship.width, this.ship.height);
 
   //  Draw invaders.
   // ctx.fillStyle = '#006600';
@@ -654,7 +655,7 @@ PlayState.prototype.draw = function(game, dt, ctx) {
 
   for (var i = 0; i < this.invaders.length; i++) {
     var invader = this.invaders[i];
-    ctx.drawImage(invader.image, invader.x, invader.y, invader.width, invader.height);
+    ctx.drawImage(invader.image, invader.x - invader.width / 2, invader.y - invader.height / 2, invader.width, invader.height);
   }
 
 
