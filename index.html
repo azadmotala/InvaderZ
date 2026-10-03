@@ -58,6 +58,9 @@
       document.documentElement.classList.add('touch');
       fitGame();
       window.addEventListener('resize', fitGame);
+    } else {
+      fitDesktop();
+      window.addEventListener('resize', fitDesktop);
     }
 
     //  Keep the touch buttons in step with the game.
@@ -170,8 +173,19 @@
       canvas.style.top = -PLAY_AREA.y * scale + 'px';
       canvas.style.width = game.width * scale + 'px';
       canvas.style.height = game.height * scale + 'px';
+      setCanvasResolution(scale);
+    }
 
-      //  Draw at the screen's real resolution so the sprites and text stay sharp.
+    //  On computers, keep the canvas 800x600 on the page.
+    function fitDesktop() {
+      canvas.style.width = game.width + 'px';
+      canvas.style.height = game.height + 'px';
+      setCanvasResolution(1);
+    }
+
+    //  Draw at the screen's real resolution, not the page's, so the sprites
+    //  and text stay sharp on high-resolution screens and when zoomed in.
+    function setCanvasResolution(scale) {
       var ratio = Math.min(scale * (window.devicePixelRatio || 1), 3);
       var width = Math.round(game.width * ratio);
       var height = Math.round(game.height * ratio);

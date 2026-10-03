@@ -92,6 +92,8 @@ All the tuning sits in the `config` object at the top of [`js/spaceinvaders.js`]
 | `levelDifficultyMultiplier` | `0.2` | How much harder each level gets |
 | `pointsPerInvader` | `5` | Points per kill |
 
+The invaders are drawn in code from a pixel grid, `INVADER_PIXELS`, near the top of the same file. Edit the grid to redraw them, or add colours to `INVADER_COLOURS`.
+
 Add `?debug=true` to the URL and the game outlines the play area.
 
 ## Project layout
@@ -103,7 +105,7 @@ invaders/
 │   ├── spaceinvaders.js  Game loop, states, ship, invaders and sound
 │   └── starfield.js      Scrolling star background
 ├── css/                  Page styles
-├── images/               Ship and invader sprites
+├── images/               Ship sprite, and invader pictures for the README
 ├── sounds/               Sound effects
 └── docs/                 Screenshot
 ```
