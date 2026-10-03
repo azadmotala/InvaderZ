@@ -132,6 +132,29 @@ var UFO_MIN_INVADERS = 8;
 //  The two notes of its warble, in Hz.
 var UFO_NOTES = [740, 880];
 
+//  Shields: bunkers between your ship and the invaders, as in the arcade
+//  game. Bombs and your own shots blast holes in them, and invaders crush
+//  them as they march down. They're rebuilt for each wave.
+var SHIELD_PIXELS = [
+  '....##############....',
+  '...################...',
+  '..##################..',
+  '.####################.',
+  '######################',
+  '######################',
+  '######################',
+  '######################',
+  '######################',
+  '######################',
+  '######################',
+  '######################',
+  '#######........#######',
+  '######..........######',
+  '#####............#####',
+  '#####............#####'
+];
+var SHIELD_COLOUR = '#64dd17';
+
 //  Invader body colours. Green is the original, like the invaders in the
 //  game this is based on.
 var INVADER_COLOURS = ['#ffa726', '#64dd17', '#2962ff'];
@@ -163,7 +186,8 @@ function Game() {
     ufoSpeed: 70,
     ufoMinInterval: 15,
     ufoMaxInterval: 30,
-    touchShipSpeed: 360
+    touchShipSpeed: 360,
+    shieldCount: 4
   };
 
   //  All state is in the variables below.
@@ -552,6 +576,9 @@ function PlayState(config, level) {
   this.ufoTimer = 0;
   this.ufoScore = null;
 
+  //  The shields between your ship and the invaders.
+  this.shields = [];
+
   //  Where a touch drag is taking the ship, if anywhere.
   this.shipTargetX = null;
 
@@ -602,6 +629,15 @@ PlayState.prototype.enter = function(game) {
   this.invaders = invaders;
   this.invaderCount = invaders.length;
   this.resetUfoTimer();
+
+  //  Fresh shields for each wave, spread evenly above the ship.
+  this.shields = [];
+  var playWidth = game.gameBounds.right - game.gameBounds.left;
+  for (var n = 0; n < this.config.shieldCount; n++) {
+    this.shields.push(new Shield(
+      game.gameBounds.left + playWidth * (n + 0.5) / this.config.shieldCount,
+      game.gameBounds.bottom - 45));
+  }
   this.invaderCurrentVelocity = this.invaderInitialVelocity;
   this.invaderVelocity = { x: -this.invaderInitialVelocity, y: 0 };
   this.invaderNextVelocity = null;
@@ -612,6 +648,26 @@ PlayState.prototype.enter = function(game) {
 //  a quarter left twice as fast, and the last few reach invaderSpeedUpMax.
 PlayState.prototype.fleetSpeedUp = function() {
   return Math.min(Math.sqrt(this.invaderCount / this.invaders.length), this.config.invaderSpeedUpMax);
+};
+
+//  Where a shot or bomb travelling straight up or down at x, from y1 to y2,
+//  first meets a shield, if it does. Checks every half pixel of the way, so
+//  fast bombs can't skip through.
+PlayState.prototype.shieldHit = function(x, y1, y2) {
+  var steps = Math.ceil(Math.abs(y2 - y1) / (INVADER_PIXEL_SIZE / 2));
+  for (var i = 0; i < this.shields.length; i++) {
+    var shield = this.shields[i];
+    if (Math.abs(x - shield.x) > shield.width / 2) {
+      continue;
+    }
+    for (var j = 0; j <= steps; j++) {
+      var y = steps ? y1 + (y2 - y1) * j / steps : y1;
+      if (shield.isSolidAt(x, y)) {
+        return { shield: shield, y: y };
+      }
+    }
+  }
+  return null;
 };
 
 //  Sets how long until the next mystery UFO comes.
@@ -705,24 +761,32 @@ PlayState.prototype.update = function(game, dt) {
     this.ship.x = game.gameBounds.right;
   }
 
-  //  Move each bomb.
+  //  Move each bomb. One that hits a shield blasts a hole in it and stops.
   for (var i = 0; i < this.bombs.length; i++) {
     var bomb = this.bombs[i];
+    var bombFront = bomb.y + 2;
     bomb.y += dt * bomb.velocity;
-
-    //  If the rocket has gone off the screen remove it.
-    if (bomb.y > this.height) {
+    var bombHit = this.shieldHit(bomb.x, bombFront, bomb.y + 2);
+    if (bombHit) {
+      bombHit.shield.blast(bomb.x, bombHit.y);
+      this.bombs.splice(i--, 1);
+    } else if (bomb.y > game.height) {
+      //  It's gone off the screen.
       this.bombs.splice(i--, 1);
     }
   }
 
-  //  Move each rocket.
+  //  Move each rocket. Your own shots blast holes in shields too.
   for (i = 0; i < this.rockets.length; i++) {
     var rocket = this.rockets[i];
+    var rocketFront = rocket.y - 2;
     rocket.y -= dt * rocket.velocity;
-
-    //  If the rocket has gone off the screen remove it.
-    if (rocket.y < 0) {
+    var rocketHit = this.shieldHit(rocket.x + 0.5, rocketFront, rocket.y - 2);
+    if (rocketHit) {
+      rocketHit.shield.blast(rocket.x + 0.5, rocketHit.y);
+      this.rockets.splice(i--, 1);
+    } else if (rocket.y < 0) {
+      //  It's gone off the screen.
       this.rockets.splice(i--, 1);
     }
   }
@@ -782,6 +846,19 @@ PlayState.prototype.update = function(game, dt) {
   //  If we've hit the bottom, it's game over.
   if (hitBottom) {
     game.lives = 0;
+  }
+
+  //  Invaders crush any shield they march into.
+  for (i = 0; i < this.invaders.length; i++) {
+    var crusher = this.invaders[i];
+    for (var k = 0; k < this.shields.length; k++) {
+      var crushed = this.shields[k];
+      if (Math.abs(crusher.x - crushed.x) < (crusher.width + crushed.width) / 2 &&
+        Math.abs(crusher.y - crushed.y) < (crusher.height + crushed.height) / 2) {
+        crushed.eraseBox(crusher.x - crusher.width / 2, crusher.y - crusher.height / 2,
+          crusher.x + crusher.width / 2, crusher.y + crusher.height / 2);
+      }
+    }
   }
 
   //  Each time the fleet moves a step, swap the invaders' pose so they march,
@@ -926,6 +1003,11 @@ PlayState.prototype.draw = function(game, dt, ctx) {
   var pixelScale = ctx.getTransform ? ctx.getTransform().a : 1;
   var snap = function(value) { return Math.round(value * pixelScale) / pixelScale; };
   ctx.imageSmoothingEnabled = false;
+  for (var n = 0; n < this.shields.length; n++) {
+    var shield = this.shields[n];
+    ctx.drawImage(shield.sprite, snap(shield.x - shield.width / 2), snap(shield.y - shield.height / 2),
+      snap(shield.width), snap(shield.height));
+  }
   for (var i = 0; i < this.invaders.length; i++) {
     var invader = this.invaders[i];
     var invaderSprite = game.invaderSprites[invader.type][game.invaderColour][this.invaderPose];
@@ -1146,6 +1228,69 @@ function Invader(x, y, rank, file, type) {
   this.width = pixels[0].length * INVADER_PIXEL_SIZE;
   this.height = pixels.length * INVADER_PIXEL_SIZE;
 }
+
+/*
+    Shield
+
+    A bunker that wears away. It keeps which of its pixels are left, and its
+    own small canvas to draw, which loses those pixels too.
+*/
+function Shield(x, y) {
+  this.x = x;
+  this.y = y;
+  this.width = SHIELD_PIXELS[0].length * INVADER_PIXEL_SIZE;
+  this.height = SHIELD_PIXELS.length * INVADER_PIXEL_SIZE;
+  this.pixels = SHIELD_PIXELS.map(function(row) {
+    return row.split('').map(function(pixel) { return pixel === '#'; });
+  });
+  this.sprite = drawPixelSprite(SHIELD_PIXELS, SHIELD_COLOUR);
+}
+
+//  The grid column and row at a point in the game.
+Shield.prototype.columnAt = function(x) {
+  return Math.floor((x - (this.x - this.width / 2)) / INVADER_PIXEL_SIZE);
+};
+Shield.prototype.rowAt = function(y) {
+  return Math.floor((y - (this.y - this.height / 2)) / INVADER_PIXEL_SIZE);
+};
+
+//  Whether there's any shield left at a point in the game.
+Shield.prototype.isSolidAt = function(x, y) {
+  var row = this.pixels[this.rowAt(y)];
+  return !!(row && row[this.columnAt(x)]);
+};
+
+//  Knocks out one pixel, if it's still there.
+Shield.prototype.erasePixel = function(column, row) {
+  if (this.pixels[row] && this.pixels[row][column]) {
+    this.pixels[row][column] = false;
+    this.sprite.getContext('2d').clearRect(column, row, 1, 1);
+  }
+};
+
+//  Blows a ragged hole where a shot or bomb hits.
+Shield.prototype.blast = function(x, y) {
+  var column = this.columnAt(x);
+  var row = this.rowAt(y);
+  for (var dy = -2; dy <= 2; dy++) {
+    for (var dx = -2; dx <= 2; dx++) {
+      var distance = Math.sqrt(dx * dx + dy * dy);
+      if (distance <= 1.5 || (distance <= 2.5 && Math.random() < 0.5)) {
+        this.erasePixel(column + dx, row + dy);
+      }
+    }
+  }
+};
+
+//  Crushes the part of the shield under a box, such as an invader passing
+//  through it.
+Shield.prototype.eraseBox = function(left, top, right, bottom) {
+  for (var row = Math.max(0, this.rowAt(top)); row <= Math.min(this.pixels.length - 1, this.rowAt(bottom)); row++) {
+    for (var column = Math.max(0, this.columnAt(left)); column <= Math.min(this.pixels[0].length - 1, this.columnAt(right)); column++) {
+      this.erasePixel(column, row);
+    }
+  }
+};
 
 /*
     UFO
