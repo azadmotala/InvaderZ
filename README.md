@@ -60,7 +60,7 @@ Every level, the invaders move faster, drop bombs more often, and the bombs fall
 
 The fleet and your fire rate stop growing at level 25. The invaders' speed doesn't.
 
-Within each wave, the fleet speeds up as you thin it out, like the arcade game. It's gentle at first: with half the invaders left they're about 1.4 times as fast, and with a quarter left twice as fast. The last few move five times as fast as the full fleet did. The heartbeat speeds up with them, up to eight beats a second.
+Within each wave, the fleet speeds up as you thin it out, like the arcade game. It's gentle at first: with half the invaders left they're about 1.4 times as fast, and with a quarter left twice as fast. The last few move three times as fast as the full fleet did. The heartbeat speeds up with them, up to eight beats a second.
 
 ## Run it locally
 
@@ -99,7 +99,7 @@ All the tuning sits in the `config` object at the top of [`js/spaceinvaders.js`]
 | `shipSpeed` | `120` | How fast your ship moves |
 | `rocketMaxFireRate` | `2` | Shots per second |
 | `levelDifficultyMultiplier` | `0.2` | How much harder each level gets |
-| `invaderSpeedUpMax` | `5` | How much faster the last invaders in a wave get (`1` turns the speed-up off) |
+| `invaderSpeedUpMax` | `3` | How much faster the last invaders in a wave get (`1` turns the speed-up off) |
 | `ufoMinInterval` / `ufoMaxInterval` | `15` / `30` | Seconds between mystery UFOs |
 | `ufoSpeed` | `70` | How fast the mystery UFO flies |
 | `touchShipSpeed` | `360` | Top speed of the ship when you drag it on a touch screen |
