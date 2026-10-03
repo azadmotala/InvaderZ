@@ -15,7 +15,7 @@
 [![Latest release](https://img.shields.io/github/v/release/azadmotala/invaders)](https://github.com/azadmotala/invaders/releases)
 [![MIT license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-<a href="https://azadmotala.github.io/invaders/"><img src="docs/screenshot.png" alt="Invaders gameplay: rows of green squid, crab and octopus invaders over a starfield, with the player's ship firing up from below" width="480"></a>
+<a href="https://azadmotala.github.io/invaders/"><img src="docs/screenshot.png" alt="Invaders gameplay: rows of green squid, crab and octopus invaders over a starfield, a red mystery UFO crossing above them, and the player's ship firing up from below" width="480"></a>
 
 [How to play](#how-to-play) · [Run it locally](#run-it-locally) · [Tweak it](#tweak-it) · [What's new](https://github.com/azadmotala/invaders/releases) · [Credits](#credits) · [License](#license)
 
@@ -26,6 +26,8 @@
 The fleet marches side to side, drops a row every time it hits the edge, and bombs you on the way down. Shoot every last one and the next wave turns up faster, bigger and quicker to bomb. Let them reach the bottom and it's over.
 
 The fleet lines up like the 1978 arcade game: squids along the top, crabs in the middle and octopuses in the bottom two rows, all marching in two poses to a four-note heartbeat. They come in their original green. Switch on random colours and every wave turns up in a different colour from the last.
+
+Every so often a red mystery UFO warbles across the top. Shoot it for a mystery score.
 
 ## How to play
 
@@ -47,6 +49,7 @@ On a computer the buttons sit under the game. On a phone or tablet they're in th
 - You get three lives. Each bomb that hits your ship costs one.
 - If an invader reaches the bottom or crashes into your ship, the game ends right there.
 - Squids are worth 30 points, crabs 20 and octopuses 10, the same as the arcade game. Clear a wave and you get a bonus of 50 × that level.
+- The mystery UFO is usually worth 50 or 100, sometimes 150 and now and then 300. It comes every 15 to 30 seconds, but not once the fleet is down to its last 7 invaders.
 
 ### It gets harder
 
@@ -94,6 +97,8 @@ All the tuning sits in the `config` object at the top of [`js/spaceinvaders.js`]
 | `rocketMaxFireRate` | `2` | Shots per second |
 | `levelDifficultyMultiplier` | `0.2` | How much harder each level gets |
 | `invaderSpeedUpMax` | `5` | How much faster the last invaders in a wave get (`1` turns the speed-up off) |
+| `ufoMinInterval` / `ufoMaxInterval` | `15` / `30` | Seconds between mystery UFOs |
+| `ufoSpeed` | `70` | How fast the mystery UFO flies |
 
 The invaders are drawn in code. `INVADER_TYPES`, near the top of the same file, holds each kind's pixel grids for its two poses and how many points it's worth. Edit a grid to redraw an invader, or add colours to `INVADER_COLOURS`.
 
@@ -116,7 +121,7 @@ invaders/
 
 ## Credits
 
-Invaders is based on [spaceinvaders](https://github.com/dwmkerr/spaceinvaders) by Dave Kerr, which supplies the game engine, the starfield and the core gameplay. This version adds a pixel-art ship, the arcade game's three kinds of invader drawn in code with their marching poses and points, an option to give every wave a new colour, Pause and Mute buttons, and touch controls for phones and tablets.
+Invaders is based on [spaceinvaders](https://github.com/dwmkerr/spaceinvaders) by Dave Kerr, which supplies the game engine, the starfield and the core gameplay. This version adds a pixel-art ship, the arcade game's three kinds of invader drawn in code with their marching poses and points, the heartbeat, the speed-up and the mystery UFO, an option to give every wave a new colour, Pause and Mute buttons, and touch controls for phones and tablets.
 
 ## License
 

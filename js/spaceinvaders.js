@@ -110,6 +110,28 @@ var INVADER_MAX_STEPS_PER_SECOND = 8;
 //  the fleet, as in the arcade game. Frequencies in Hz.
 var HEARTBEAT_NOTES = [98, 87.3, 77.8, 73.4];
 
+//  The mystery UFO that crosses the top now and then, as in the arcade game.
+var UFO_PIXELS = [
+  '.....######.....',
+  '...##########...',
+  '..############..',
+  '.##.##.##.##.##.',
+  '################',
+  '..###..##..###..',
+  '...#........#...'
+];
+var UFO_COLOUR = '#ff4b4b';
+
+//  Its mystery score, picked from the arcade game's table: usually 50 or
+//  100, sometimes 150 and rarely 300.
+var UFO_POINTS = [100, 50, 50, 100, 150, 100, 100, 50, 300, 100, 100, 100, 50, 150, 100];
+
+//  It doesn't come once the fleet is down to fewer invaders than this.
+var UFO_MIN_INVADERS = 8;
+
+//  The two notes of its warble, in Hz.
+var UFO_NOTES = [740, 880];
+
 //  Invader body colours. Green is the original, like the invaders in the
 //  game this is based on.
 var INVADER_COLOURS = ['#ffa726', '#64dd17', '#2962ff'];
@@ -137,7 +159,10 @@ function Game() {
     invaderFiles: 10,
     shipSpeed: 120,
     levelDifficultyMultiplier: 0.2,
-    limitLevelIncrease: 25
+    limitLevelIncrease: 25,
+    ufoSpeed: 70,
+    ufoMinInterval: 15,
+    ufoMaxInterval: 30
   };
 
   //  All state is in the variables below.
@@ -180,10 +205,11 @@ function Game() {
   for (var type in INVADER_TYPES) {
     this.invaderSprites[type] = INVADER_COLOURS.map(function(colour) {
       return INVADER_TYPES[type].poses.map(function(pixels) {
-        return drawInvaderSprite(pixels, colour);
+        return drawPixelSprite(pixels, colour);
       });
     });
   }
+  this.ufoSprite = drawPixelSprite(UFO_PIXELS, UFO_COLOUR);
 }
 
 //  Initialis the Game with a canvas.
@@ -519,6 +545,12 @@ function PlayState(config, level) {
   //  The heartbeat note to play on the next step.
   this.heartbeatNote = 0;
 
+  //  The mystery UFO, if one is flying, how long until the next one comes,
+  //  and the score to show where one was shot.
+  this.ufo = null;
+  this.ufoTimer = 0;
+  this.ufoScore = null;
+
   //  Where a touch drag is taking the ship, if anywhere.
   this.shipTargetX = null;
 
@@ -568,6 +600,7 @@ PlayState.prototype.enter = function(game) {
   }
   this.invaders = invaders;
   this.invaderCount = invaders.length;
+  this.resetUfoTimer();
   this.invaderCurrentVelocity = this.invaderInitialVelocity;
   this.invaderVelocity = { x: -this.invaderInitialVelocity, y: 0 };
   this.invaderNextVelocity = null;
@@ -578,6 +611,52 @@ PlayState.prototype.enter = function(game) {
 //  a quarter left twice as fast, and the last few reach invaderSpeedUpMax.
 PlayState.prototype.fleetSpeedUp = function() {
   return Math.min(Math.sqrt(this.invaderCount / this.invaders.length), this.config.invaderSpeedUpMax);
+};
+
+//  Sets how long until the next mystery UFO comes.
+PlayState.prototype.resetUfoTimer = function() {
+  this.ufoTimer = this.config.ufoMinInterval + Math.random() * (this.config.ufoMaxInterval - this.config.ufoMinInterval);
+};
+
+//  The mystery UFO crosses the top now and then, from either side, warbling
+//  as it goes. As in the arcade game, it stops coming once the fleet is down
+//  to its last few.
+PlayState.prototype.updateUfo = function(game, dt) {
+  var margin = 20 + UFO_PIXELS[0].length * INVADER_PIXEL_SIZE / 2;
+  if (!this.ufo) {
+    if (this.invaders.length >= UFO_MIN_INVADERS) {
+      this.ufoTimer -= dt;
+      if (this.ufoTimer <= 0) {
+        var fromLeft = Math.random() < 0.5;
+        this.ufo = new Ufo(
+          fromLeft ? game.gameBounds.left - margin : game.gameBounds.right + margin,
+          game.gameBounds.top - 16,
+          fromLeft ? this.config.ufoSpeed : -this.config.ufoSpeed);
+      }
+    }
+  } else {
+    this.ufo.x += this.ufo.velocity * dt;
+    this.ufo.noteTime -= dt;
+    if (this.ufo.noteTime <= 0) {
+      game.sounds.playNote(UFO_NOTES[this.ufo.note], 0.07, 0.04);
+      this.ufo.note = (this.ufo.note + 1) % UFO_NOTES.length;
+      this.ufo.noteTime = 0.08;
+    }
+
+    //  Gone off the far side.
+    if (this.ufo.x < game.gameBounds.left - margin || this.ufo.x > game.gameBounds.right + margin) {
+      this.ufo = null;
+      this.resetUfoTimer();
+    }
+  }
+
+  //  A shot UFO's score shows for a second.
+  if (this.ufoScore) {
+    this.ufoScore.timeLeft -= dt;
+    if (this.ufoScore.timeLeft <= 0) {
+      this.ufoScore = null;
+    }
+  }
 };
 
 PlayState.prototype.update = function(game, dt) {
@@ -714,6 +793,24 @@ PlayState.prototype.update = function(game, dt) {
     this.heartbeatNote = (this.heartbeatNote + 1) % HEARTBEAT_NOTES.length;
   }
 
+  this.updateUfo(game, dt);
+
+  //  Check for a rocket hitting the UFO, for its mystery score.
+  for (i = 0; this.ufo && i < this.rockets.length; i++) {
+    var shot = this.rockets[i];
+    var ufo = this.ufo;
+    if (shot.x >= ufo.x - ufo.width / 2 && shot.x <= ufo.x + ufo.width / 2 &&
+      shot.y >= ufo.y - ufo.height / 2 && shot.y <= ufo.y + ufo.height / 2) {
+      var points = UFO_POINTS[Math.floor(Math.random() * UFO_POINTS.length)];
+      game.score += points;
+      this.ufoScore = { points: points, x: ufo.x, y: ufo.y, timeLeft: 1 };
+      this.rockets.splice(i, 1);
+      this.ufo = null;
+      this.resetUfoTimer();
+      game.sounds.playSound('bang');
+    }
+  }
+
   //  Check for rocket/invader collisions.
   for (i = 0; i < this.invaders.length; i++) {
     var invader = this.invaders[i];
@@ -831,7 +928,20 @@ PlayState.prototype.draw = function(game, dt, ctx) {
     ctx.drawImage(invaderSprite, snap(invader.x - invader.width / 2), snap(invader.y - invader.height / 2),
       snap(invader.width), snap(invader.height));
   }
+  var ufo = this.ufo;
+  if (ufo) {
+    ctx.drawImage(game.ufoSprite, snap(ufo.x - ufo.width / 2), snap(ufo.y - ufo.height / 2),
+      snap(ufo.width), snap(ufo.height));
+  }
   ctx.imageSmoothingEnabled = true;
+
+  //  The score for a UFO that's just been shot, where it was.
+  if (this.ufoScore) {
+    ctx.font = "12px Arial";
+    ctx.fillStyle = UFO_COLOUR;
+    ctx.textAlign = "center";
+    ctx.fillText(this.ufoScore.points, this.ufoScore.x, this.ufoScore.y);
+  }
 
 
   //  Draw bombs.
@@ -1033,9 +1143,27 @@ function Invader(x, y, rank, file, type) {
   this.height = pixels.length * INVADER_PIXEL_SIZE;
 }
 
-//  Draws an invader pose in the given colour onto a small canvas, one canvas
-//  pixel per grid pixel. Each is drawn once and scaled up when the game draws.
-function drawInvaderSprite(pixels, colour) {
+/*
+    UFO
+
+    The mystery UFO flies straight across the top at a steady speed.
+*/
+function Ufo(x, y, velocity) {
+  this.x = x;
+  this.y = y;
+  this.velocity = velocity;
+  this.width = UFO_PIXELS[0].length * INVADER_PIXEL_SIZE;
+  this.height = UFO_PIXELS.length * INVADER_PIXEL_SIZE;
+
+  //  Which note of its warble is next, and how long until it plays.
+  this.note = 0;
+  this.noteTime = 0;
+}
+
+//  Draws a pixel grid (an invader pose or the UFO) in the given colour onto a
+//  small canvas, one canvas pixel per grid pixel. Each is drawn once and
+//  scaled up when the game draws.
+function drawPixelSprite(pixels, colour) {
   var sprite = document.createElement('canvas');
   sprite.width = pixels[0].length;
   sprite.height = pixels.length;
@@ -1130,11 +1258,12 @@ Sounds.prototype.loadSound = function(name, url) {
   }
 };
 
-//  Plays a short, low note, made in code rather than from a sound file. Used
-//  for the heartbeat. Skipped while sound is off, so notes can't pile up and
-//  all play at once when it comes back on.
-Sounds.prototype.playNote = function(frequency, duration) {
+//  Plays a short note, made in code rather than from a sound file, for the
+//  heartbeat and the UFO's warble. The volume is optional. Skipped while sound
+//  is off, so notes can't pile up and all play at once when it comes back on.
+Sounds.prototype.playNote = function(frequency, duration, level) {
   var context = this.audioContext;
+  level = level || 0.15;
   if (this.mute === true || context.state !== 'running') {
     return;
   }
@@ -1147,8 +1276,8 @@ Sounds.prototype.playNote = function(frequency, duration) {
   oscillator.type = 'square';
   oscillator.frequency.value = frequency;
   volume.gain.setValueAtTime(0.0001, now);
-  volume.gain.exponentialRampToValueAtTime(0.15, now + 0.005);
-  volume.gain.setValueAtTime(0.15, now + duration / 2);
+  volume.gain.exponentialRampToValueAtTime(level, now + 0.005);
+  volume.gain.setValueAtTime(level, now + duration / 2);
   volume.gain.exponentialRampToValueAtTime(0.0001, now + duration);
   oscillator.connect(volume);
   volume.connect(context.destination);
