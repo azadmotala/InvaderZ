@@ -2,7 +2,7 @@
 
 <img src="images/enemy1.png" alt="Orange invader" width="44">&nbsp;&nbsp;&nbsp;<img src="images/enemy2.png" alt="Green invader" width="44">&nbsp;&nbsp;&nbsp;<img src="images/enemy3.png" alt="Blue invader" width="44">
 
-# InvaderZ
+# Invaders
 
 **The arcade classic, in plain JavaScript. Clear the sky and they come back faster.**
 
@@ -14,7 +14,7 @@
 ![Vite](https://img.shields.io/badge/dev%20server-Vite-646CFF?logo=vite&logoColor=white)
 [![MIT license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-<a href="https://azadmotala.github.io/invaders/"><img src="docs/screenshot.png" alt="InvaderZ gameplay: a fleet of green pixel invaders over a starfield, with the player's ship firing up from below" width="480"></a>
+<a href="https://azadmotala.github.io/invaders/"><img src="docs/screenshot.png" alt="Invaders gameplay: a fleet of green pixel invaders over a starfield, with the player's ship firing up from below" width="480"></a>
 
 [How to play](#how-to-play) · [Run it locally](#run-it-locally) · [Tweak it](#tweak-it) · [Credits](#credits) · [License](#license)
 
@@ -110,7 +110,7 @@ invaders/
 
 ## Credits
 
-InvaderZ is based on [spaceinvaders](https://github.com/dwmkerr/spaceinvaders) by Dave Kerr, which supplies the game engine, the starfield and the core gameplay. InvaderZ adds pixel-art sprites for the ship and the invaders, an option to give every wave a new colour, and touch controls for phones and tablets.
+Invaders is based on [spaceinvaders](https://github.com/dwmkerr/spaceinvaders) by Dave Kerr, which supplies the game engine, the starfield and the core gameplay. This version adds pixel-art sprites for the ship and the invaders, an option to give every wave a new colour, and touch controls for phones and tablets.
 
 ## License
 
