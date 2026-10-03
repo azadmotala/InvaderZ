@@ -12,10 +12,11 @@
 ![HTML5 Canvas](https://img.shields.io/badge/HTML5-Canvas-E34F26?logo=html5&logoColor=white)
 ![Keyboard and touch](https://img.shields.io/badge/controls-keyboard%20%2B%20touch-2ea44f)
 ![Vite](https://img.shields.io/badge/dev%20server-Vite-646CFF?logo=vite&logoColor=white)
+[![MIT license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 <a href="https://azadmotala.github.io/InvaderZ/"><img src="docs/screenshot.png" alt="InvaderZ gameplay: a fleet of blue pixel invaders over a starfield, with the player's ship firing up from below" width="480"></a>
 
-[How to play](#how-to-play) · [Run it locally](#run-it-locally) · [Tweak it](#tweak-it) · [Credits](#credits)
+[How to play](#how-to-play) · [Run it locally](#run-it-locally) · [Tweak it](#tweak-it) · [Credits](#credits) · [License](#license)
 
 </div>
 
@@ -107,3 +108,7 @@ InvaderZ/
 ## Credits
 
 InvaderZ is based on [spaceinvaders](https://github.com/dwmkerr/spaceinvaders) by Dave Kerr, which supplies the game engine, the starfield and the core gameplay. InvaderZ adds pixel-art sprites for the ship and the invaders, with a random invader colour for each wave.
+
+## License
+
+[MIT](LICENSE). The original spaceinvaders code is also MIT, and its copyright notice is kept in the LICENSE file.
