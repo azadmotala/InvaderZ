@@ -26,18 +26,81 @@ var KEY_LEFT = 37;
 var KEY_RIGHT = 39;
 var KEY_SPACE = 32;
 
-//  Invaders are drawn from this pixel grid, scaled up: # is the body,
-//  o is an eye and . is see-through.
-var INVADER_PIXELS = [
-  '..#.....#..',
-  '...#...#...',
-  '..#######..',
-  '.##o###o##.',
-  '###########',
-  '#.#######.#',
-  '#.#.....#.#',
-  '...##.##...'
-];
+//  The three kinds of invader, as in the arcade game: squids in the top row,
+//  octopuses in the bottom two and crabs in between, with the arcade points.
+//  Each is drawn from pixel grids in two poses that swap as the fleet
+//  marches: # is the body, o is an eye and . is see-through.
+var INVADER_TYPES = {
+  squid: {
+    points: 30,
+    poses: [
+      ['...##...',
+       '..####..',
+       '.######.',
+       '##o##o##',
+       '########',
+       '..#..#..',
+       '.#.##.#.',
+       '#.#..#.#'],
+      ['...##...',
+       '..####..',
+       '.######.',
+       '##o##o##',
+       '########',
+       '.#.##.#.',
+       '#......#',
+       '.#....#.']
+    ]
+  },
+  crab: {
+    points: 20,
+    poses: [
+      ['..#.....#..',
+       '...#...#...',
+       '..#######..',
+       '.##o###o##.',
+       '###########',
+       '#.#######.#',
+       '#.#.....#.#',
+       '...##.##...'],
+      ['..#.....#..',
+       '#..#...#..#',
+       '#.#######.#',
+       '###o###o###',
+       '###########',
+       '.#########.',
+       '..#.....#..',
+       '.#.......#.']
+    ]
+  },
+  octopus: {
+    points: 10,
+    poses: [
+      ['....####....',
+       '.##########.',
+       '############',
+       '###oo##oo###',
+       '############',
+       '...##..##...',
+       '..##.##.##..',
+       '##........##'],
+      ['....####....',
+       '.##########.',
+       '############',
+       '###oo##oo###',
+       '############',
+       '..###..###..',
+       '.##..##..##.',
+       '..##....##..']
+    ]
+  }
+};
+
+//  How many game pixels each grid pixel takes up.
+var INVADER_PIXEL_SIZE = 1.5;
+
+//  The invaders swap poses each time the fleet moves this far.
+var INVADER_STEP = 16;
 
 //  Invader body colours. Green is the original, like the invaders in the
 //  game this is based on.
@@ -65,7 +128,6 @@ function Game() {
     invaderFiles: 10,
     shipSpeed: 120,
     levelDifficultyMultiplier: 0.2,
-    pointsPerInvader: 5,
     limitLevelIncrease: 25
   };
 
@@ -102,7 +164,17 @@ function Game() {
   //  for each wave.
   this.randomColours = false;
   this.invaderColour = ORIGINAL_INVADER_COLOUR;
-  this.invaderSprites = INVADER_COLOURS.map(drawInvaderSprite);
+
+  //  Every kind of invader, drawn once in each colour and pose:
+  //  invaderSprites[type][colour][pose].
+  this.invaderSprites = {};
+  for (var type in INVADER_TYPES) {
+    this.invaderSprites[type] = INVADER_COLOURS.map(function(colour) {
+      return INVADER_TYPES[type].poses.map(function(pixels) {
+        return drawInvaderSprite(pixels, colour);
+      });
+    });
+  }
 }
 
 //  Initialis the Game with a canvas.
@@ -428,6 +500,10 @@ function PlayState(config, level) {
   this.invadersAreDropping = false;
   this.lastRocketTime = null;
 
+  //  Which pose the invaders are in, and how far they've moved since it changed.
+  this.invaderPose = 0;
+  this.invaderStepDistance = 0;
+
   //  Where a touch drag is taking the ship, if anywhere.
   this.shipTargetX = null;
 
@@ -463,13 +539,16 @@ PlayState.prototype.enter = function(game) {
   var ranks = this.config.invaderRanks + 0.1 * limitLevel;
   var files = this.config.invaderFiles + 0.2 * limitLevel;
   var invaders = [];
+  var rankCount = Math.ceil(ranks);
   game.pickInvaderColour();
   for (var rank = 0; rank < ranks; rank++) {
+    //  Squids in the top row, octopuses in the bottom two, crabs in between.
+    var type = rank === 0 ? 'squid' : (rank >= rankCount - 2 ? 'octopus' : 'crab');
     for (var file = 0; file < files; file++) {
       invaders.push(new Invader(
         (game.width / 2) + ((files / 2 - file) * 200 / files),
         (game.gameBounds.top + rank * 20),
-        rank, file, 'Invader'));
+        rank, file, type));
     }
   }
   this.invaders = invaders;
@@ -592,6 +671,14 @@ PlayState.prototype.update = function(game, dt) {
     game.lives = 0;
   }
 
+  //  Swap the invaders' pose each time the fleet moves a step, so they march.
+  //  The faster they go, the faster they march.
+  this.invaderStepDistance += (Math.abs(this.invaderVelocity.x) + Math.abs(this.invaderVelocity.y)) * dt;
+  if (this.invaderStepDistance >= INVADER_STEP) {
+    this.invaderStepDistance -= INVADER_STEP;
+    this.invaderPose = 1 - this.invaderPose;
+  }
+
   //  Check for rocket/invader collisions.
   for (i = 0; i < this.invaders.length; i++) {
     var invader = this.invaders[i];
@@ -607,7 +694,7 @@ PlayState.prototype.update = function(game, dt) {
         //  this rocket again.
         this.rockets.splice(j--, 1);
         bang = true;
-        game.score += this.config.pointsPerInvader;
+        game.score += INVADER_TYPES[invader.type].points;
         break;
       }
     }
@@ -700,12 +787,12 @@ PlayState.prototype.draw = function(game, dt, ctx) {
 
   //  Scale the invader pixel art up without blurring it, lined up with whole
   //  screen pixels so it doesn't shimmer as it moves.
-  var invaderSprite = game.invaderSprites[game.invaderColour];
   var pixelScale = ctx.getTransform ? ctx.getTransform().a : 1;
   var snap = function(value) { return Math.round(value * pixelScale) / pixelScale; };
   ctx.imageSmoothingEnabled = false;
   for (var i = 0; i < this.invaders.length; i++) {
     var invader = this.invaders[i];
+    var invaderSprite = game.invaderSprites[invader.type][game.invaderColour][this.invaderPose];
     ctx.drawImage(invaderSprite, snap(invader.x - invader.width / 2), snap(invader.y - invader.height / 2),
       snap(invader.width), snap(invader.height));
   }
@@ -904,20 +991,23 @@ function Invader(x, y, rank, file, type) {
   this.rank = rank;
   this.file = file;
   this.type = type;
-  this.width = 18;
-  this.height = 14;
+
+  //  Sized from its pixel grid, so squids are narrow and octopuses wide.
+  var pixels = INVADER_TYPES[type].poses[0];
+  this.width = pixels[0].length * INVADER_PIXEL_SIZE;
+  this.height = pixels.length * INVADER_PIXEL_SIZE;
 }
 
-//  Draws an invader in the given colour onto a small canvas, one canvas pixel
-//  per grid pixel. It's drawn once per colour and scaled up when the game draws.
-function drawInvaderSprite(colour) {
+//  Draws an invader pose in the given colour onto a small canvas, one canvas
+//  pixel per grid pixel. Each is drawn once and scaled up when the game draws.
+function drawInvaderSprite(pixels, colour) {
   var sprite = document.createElement('canvas');
-  sprite.width = INVADER_PIXELS[0].length;
-  sprite.height = INVADER_PIXELS.length;
+  sprite.width = pixels[0].length;
+  sprite.height = pixels.length;
   var ctx = sprite.getContext('2d');
-  for (var y = 0; y < INVADER_PIXELS.length; y++) {
-    for (var x = 0; x < INVADER_PIXELS[y].length; x++) {
-      var pixel = INVADER_PIXELS[y].charAt(x);
+  for (var y = 0; y < pixels.length; y++) {
+    for (var x = 0; x < pixels[y].length; x++) {
+      var pixel = pixels[y].charAt(x);
       if (pixel !== '.') {
         ctx.fillStyle = pixel === 'o' ? '#000000' : colour;
         ctx.fillRect(x, y, 1, 1);

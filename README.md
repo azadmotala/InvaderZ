@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="images/enemy1.png" alt="Orange invader" width="44">&nbsp;&nbsp;&nbsp;<img src="images/enemy2.png" alt="Green invader" width="44">&nbsp;&nbsp;&nbsp;<img src="images/enemy3.png" alt="Blue invader" width="44">
+<img src="images/squid.png" alt="Squid invader" width="32">&nbsp;&nbsp;&nbsp;<img src="images/crab.png" alt="Crab invader" width="44">&nbsp;&nbsp;&nbsp;<img src="images/octopus.png" alt="Octopus invader" width="48">
 
 # Invaders
 
@@ -14,7 +14,7 @@
 ![Vite](https://img.shields.io/badge/dev%20server-Vite-646CFF?logo=vite&logoColor=white)
 [![MIT license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-<a href="https://azadmotala.github.io/invaders/"><img src="docs/screenshot.png" alt="Invaders gameplay: a fleet of green pixel invaders over a starfield, with the player's ship firing up from below" width="480"></a>
+<a href="https://azadmotala.github.io/invaders/"><img src="docs/screenshot.png" alt="Invaders gameplay: rows of green squid, crab and octopus invaders over a starfield, with the player's ship firing up from below" width="480"></a>
 
 [How to play](#how-to-play) · [Run it locally](#run-it-locally) · [Tweak it](#tweak-it) · [Credits](#credits) · [License](#license)
 
@@ -24,7 +24,7 @@
 
 The fleet marches side to side, drops a row every time it hits the edge, and bombs you on the way down. Shoot every last one and the next wave turns up faster, bigger and quicker to bomb. Let them reach the bottom and it's over.
 
-The invaders come in their original green. Switch on random colours and every wave turns up in a different colour from the last.
+The fleet lines up like the 1978 arcade game: squids along the top, crabs in the middle and octopuses in the bottom two rows, all marching in two poses. They come in their original green. Switch on random colours and every wave turns up in a different colour from the last.
 
 ## How to play
 
@@ -45,7 +45,7 @@ On a computer the buttons sit under the game. On a phone or tablet they're in th
 
 - You get three lives. Each bomb that hits your ship costs one.
 - If an invader reaches the bottom or crashes into your ship, the game ends right there.
-- Every invader is worth 5 points. Clear a wave and you get a bonus of 50 × that level.
+- Squids are worth 30 points, crabs 20 and octopuses 10, the same as the arcade game. Clear a wave and you get a bonus of 50 × that level.
 
 ### It gets harder
 
@@ -90,9 +90,8 @@ All the tuning sits in the `config` object at the top of [`js/spaceinvaders.js`]
 | `shipSpeed` | `120` | How fast your ship moves |
 | `rocketMaxFireRate` | `2` | Shots per second |
 | `levelDifficultyMultiplier` | `0.2` | How much harder each level gets |
-| `pointsPerInvader` | `5` | Points per kill |
 
-The invaders are drawn in code from a pixel grid, `INVADER_PIXELS`, near the top of the same file. Edit the grid to redraw them, or add colours to `INVADER_COLOURS`.
+The invaders are drawn in code. `INVADER_TYPES`, near the top of the same file, holds each kind's pixel grids for its two poses and how many points it's worth. Edit a grid to redraw an invader, or add colours to `INVADER_COLOURS`.
 
 Add `?debug=true` to the URL and the game outlines the play area.
 
