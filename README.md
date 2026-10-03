@@ -25,7 +25,7 @@
 
 The fleet marches side to side, drops a row every time it hits the edge, and bombs you on the way down. Shoot every last one and the next wave turns up faster, bigger and quicker to bomb. Let them reach the bottom and it's over.
 
-The fleet lines up like the 1978 arcade game: squids along the top, crabs in the middle and octopuses in the bottom two rows, all marching in two poses. They come in their original green. Switch on random colours and every wave turns up in a different colour from the last.
+The fleet lines up like the 1978 arcade game: squids along the top, crabs in the middle and octopuses in the bottom two rows, all marching in two poses to a four-note heartbeat. They come in their original green. Switch on random colours and every wave turns up in a different colour from the last.
 
 ## How to play
 
@@ -54,7 +54,7 @@ Every level, the invaders move faster, drop bombs more often, and the bombs fall
 
 The fleet and your fire rate stop growing at level 25. The invaders' speed doesn't.
 
-Within each wave, the fleet speeds up as you thin it out, like the arcade game. It's gentle at first: with half the invaders left they're about 1.4 times as fast, and with a quarter left twice as fast. The last few move five times as fast as the full fleet did.
+Within each wave, the fleet speeds up as you thin it out, like the arcade game. It's gentle at first: with half the invaders left they're about 1.4 times as fast, and with a quarter left twice as fast. The last few move five times as fast as the full fleet did. The heartbeat speeds up with them, up to eight beats a second.
 
 ## Run it locally
 
