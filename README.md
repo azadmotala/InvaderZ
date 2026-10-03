@@ -1,7 +1,109 @@
+<div align="center">
+
+<img src="images/enemy1.png" alt="Orange invader" width="44">&nbsp;&nbsp;&nbsp;<img src="images/enemy2.png" alt="Green invader" width="44">&nbsp;&nbsp;&nbsp;<img src="images/enemy3.png" alt="Blue invader" width="44">
+
 # InvaderZ
 
-The classic Space Invaders game written in JavaScript. Based on https://github.com/dwmkerr/spaceinvaders
+**The arcade classic, in plain JavaScript. Clear the sky and they come back faster.**
 
-# Enhancements
+<a href="https://azadmotala.github.io/InvaderZ/"><img src="https://img.shields.io/badge/%E2%96%B6%20Play%20now-in%20your%20browser-2ea44f?style=for-the-badge" alt="Play now in your browser" height="36"></a>
 
-Added images for the invaders and spaceship
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black)
+![HTML5 Canvas](https://img.shields.io/badge/HTML5-Canvas-E34F26?logo=html5&logoColor=white)
+![Keyboard and touch](https://img.shields.io/badge/controls-keyboard%20%2B%20touch-2ea44f)
+![Vite](https://img.shields.io/badge/dev%20server-Vite-646CFF?logo=vite&logoColor=white)
+
+<a href="https://azadmotala.github.io/InvaderZ/"><img src="docs/screenshot.png" alt="InvaderZ gameplay: a fleet of blue pixel invaders over a starfield, with the player's ship firing up from below" width="480"></a>
+
+[How to play](#how-to-play) · [Run it locally](#run-it-locally) · [Tweak it](#tweak-it) · [Credits](#credits)
+
+</div>
+
+## The game
+
+The fleet marches side to side, drops a row every time it hits the edge, and bombs you on the way down. Shoot every last one and the next wave turns up faster, bigger and quicker to bomb. Let them reach the bottom and it's over.
+
+Each wave flies in one of three colours, picked at random.
+
+## How to play
+
+Play it in your browser at **[azadmotala.github.io/InvaderZ](https://azadmotala.github.io/InvaderZ/)**. Nothing to install.
+
+| | Keyboard | Touch |
+|---|---|---|
+| Start / play again | <kbd>Space</kbd> | Tap |
+| Move | <kbd>←</kbd> <kbd>→</kbd> | Drag left or right |
+| Fire | <kbd>Space</kbd> (hold it down to keep firing) | Tap |
+| Pause | <kbd>P</kbd> | — |
+| Sound on/off | The **mute** link under the game | Same |
+
+### Rules
+
+- You get three lives. Each bomb that hits your ship costs one.
+- If an invader reaches the bottom or crashes into your ship, the game ends right there.
+- Every invader is worth 5 points. Clear a wave and you get a bonus of 50 × that level.
+
+### It gets harder
+
+Every level, the invaders move faster, drop bombs more often, and the bombs fall faster. The fleet gets bigger too. You get a faster trigger finger to keep up.
+
+The fleet and your fire rate stop growing at level 25. The invaders' speed doesn't.
+
+## Run it locally
+
+Use a local web server. You can open `index.html` straight from disk, but your browser won't load the sound effects that way, so you'd be playing in silence.
+
+With [Node.js](https://nodejs.org):
+
+```bash
+git clone https://github.com/azadmotala/InvaderZ.git
+cd InvaderZ
+npm install
+npm run dev
+```
+
+Then open http://localhost:3000.
+
+No Node? Any static server works. From the project folder, with Python:
+
+```bash
+python -m http.server 8000
+```
+
+Then open http://localhost:8000.
+
+To put it online, upload the folder as it is to any static host, such as GitHub Pages or Netlify. There's nothing to build.
+
+## Tweak it
+
+All the tuning sits in the `config` object at the top of [`js/spaceinvaders.js`](js/spaceinvaders.js). The fleet, bomb and fire-rate numbers are base values that grow with each level.
+
+| Setting | Default | What it changes |
+|---|---|---|
+| `invaderInitialVelocity` | `25` | How fast the fleet moves |
+| `bombRate` | `0.05` | How often the front row drops bombs |
+| `invaderRanks` / `invaderFiles` | `5` / `10` | Rows and columns in the fleet |
+| `shipSpeed` | `120` | How fast your ship moves |
+| `rocketMaxFireRate` | `2` | Shots per second |
+| `levelDifficultyMultiplier` | `0.2` | How much harder each level gets |
+| `pointsPerInvader` | `5` | Points per kill |
+
+Add `?debug=true` to the URL and the game outlines the play area.
+
+## Project layout
+
+```
+InvaderZ/
+├── index.html            Page, canvas and input handling
+├── js/
+│   ├── spaceinvaders.js  Game loop, states, ship, invaders and sound
+│   └── starfield.js      Scrolling star background
+├── css/                  Page styles
+├── images/               Ship and invader sprites
+├── sounds/               Sound effects
+└── docs/                 Screenshot
+```
+
+## Credits
+
+InvaderZ is based on [spaceinvaders](https://github.com/dwmkerr/spaceinvaders) by Dave Kerr, which supplies the game engine, the starfield and the core gameplay. InvaderZ adds pixel-art sprites for the ship and the invaders, with a random invader colour for each wave.
