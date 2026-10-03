@@ -12,11 +12,12 @@
 ![HTML5 Canvas](https://img.shields.io/badge/HTML5-Canvas-E34F26?logo=html5&logoColor=white)
 ![Keyboard and touch](https://img.shields.io/badge/controls-keyboard%20%2B%20touch-2ea44f)
 ![Vite](https://img.shields.io/badge/dev%20server-Vite-646CFF?logo=vite&logoColor=white)
+[![Latest release](https://img.shields.io/github/v/release/azadmotala/invaders)](https://github.com/azadmotala/invaders/releases)
 [![MIT license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 <a href="https://azadmotala.github.io/invaders/"><img src="docs/screenshot.png" alt="Invaders gameplay: rows of green squid, crab and octopus invaders over a starfield, with the player's ship firing up from below" width="480"></a>
 
-[How to play](#how-to-play) · [Run it locally](#run-it-locally) · [Tweak it](#tweak-it) · [Credits](#credits) · [License](#license)
+[How to play](#how-to-play) · [Run it locally](#run-it-locally) · [Tweak it](#tweak-it) · [What's new](https://github.com/azadmotala/invaders/releases) · [Credits](#credits) · [License](#license)
 
 </div>
 
@@ -76,7 +77,7 @@ python -m http.server 8000
 
 Then open http://localhost:8000.
 
-To put it online, upload the folder as it is to any static host, such as GitHub Pages or Netlify. There's nothing to build.
+To put it online, upload the folder as it is to any static host, such as GitHub Pages or Netlify. There's nothing to build. `npm run build` also makes a ready-to-upload copy in `dist/`, without the README and project files.
 
 ## Tweak it
 
@@ -106,12 +107,13 @@ invaders/
 ├── css/                  Page styles
 ├── images/               Ship sprite, and invader pictures for the README
 ├── sounds/               Sound effects
-└── docs/                 Screenshot
+├── docs/                 Screenshot
+└── vite.config.js        Settings for npm run build
 ```
 
 ## Credits
 
-Invaders is based on [spaceinvaders](https://github.com/dwmkerr/spaceinvaders) by Dave Kerr, which supplies the game engine, the starfield and the core gameplay. This version adds pixel-art sprites for the ship and the invaders, an option to give every wave a new colour, and touch controls for phones and tablets.
+Invaders is based on [spaceinvaders](https://github.com/dwmkerr/spaceinvaders) by Dave Kerr, which supplies the game engine, the starfield and the core gameplay. This version adds a pixel-art ship, the arcade game's three kinds of invader drawn in code with their marching poses and points, an option to give every wave a new colour, Pause and Mute buttons, and touch controls for phones and tablets.
 
 ## License
 
