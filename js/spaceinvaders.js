@@ -26,10 +26,23 @@ var KEY_LEFT = 37;
 var KEY_RIGHT = 39;
 var KEY_SPACE = 32;
 
-//  Invader sprites are images/enemy1.png to enemy3.png. Number 2 is the
-//  original colour: green, like the invaders in the game this is based on.
-var INVADER_SPRITES = 3;
-var ORIGINAL_INVADER_SPRITE = 2;
+//  Invaders are drawn from this pixel grid, scaled up: # is the body,
+//  o is an eye and . is see-through.
+var INVADER_PIXELS = [
+  '..#.....#..',
+  '...#...#...',
+  '..#######..',
+  '.##o###o##.',
+  '###########',
+  '#.#######.#',
+  '#.#.....#.#',
+  '...##.##...'
+];
+
+//  Invader body colours. Green is the original, like the invaders in the
+//  game this is based on.
+var INVADER_COLOURS = ['#ffa726', '#64dd17', '#2962ff'];
+var ORIGINAL_INVADER_COLOUR = 1;
 
 //  Creates an instance of the Game class.
 function Game() {
@@ -88,12 +101,8 @@ function Game() {
   //  Invader colour: the original, or with randomColours on, a new colour
   //  for each wave.
   this.randomColours = false;
-  this.invaderSprite = ORIGINAL_INVADER_SPRITE;
-  this.invaderImages = {};
-  for (var sprite = 1; sprite <= INVADER_SPRITES; sprite++) {
-    this.invaderImages[sprite] = new Image();
-    this.invaderImages[sprite].src = 'images/enemy' + sprite + '.png';
-  }
+  this.invaderColour = ORIGINAL_INVADER_COLOUR;
+  this.invaderSprites = INVADER_COLOURS.map(drawInvaderSprite);
 }
 
 //  Initialis the Game with a canvas.
@@ -236,11 +245,11 @@ Game.prototype.toggleRandomColours = function() {
 //  the colour that's showing now, so every wave looks different.
 Game.prototype.pickInvaderColour = function() {
   if (!this.randomColours) {
-    this.invaderSprite = ORIGINAL_INVADER_SPRITE;
+    this.invaderColour = ORIGINAL_INVADER_COLOUR;
     return;
   }
-  var sprite = Math.floor(Math.random() * (INVADER_SPRITES - 1)) + 1;
-  this.invaderSprite = sprite >= this.invaderSprite ? sprite + 1 : sprite;
+  var colour = Math.floor(Math.random() * (INVADER_COLOURS.length - 1));
+  this.invaderColour = colour >= this.invaderColour ? colour + 1 : colour;
 };
 
 //  Pauses or resumes play. Does nothing outside of play.
@@ -689,11 +698,18 @@ PlayState.prototype.draw = function(game, dt, ctx) {
   //   ctx.fillRect(invader.x - invader.width / 2, invader.y - invader.height / 2, invader.width, invader.height);
   // }
 
-  var invaderImage = game.invaderImages[game.invaderSprite];
+  //  Scale the invader pixel art up without blurring it, lined up with whole
+  //  screen pixels so it doesn't shimmer as it moves.
+  var invaderSprite = game.invaderSprites[game.invaderColour];
+  var pixelScale = ctx.getTransform ? ctx.getTransform().a : 1;
+  var snap = function(value) { return Math.round(value * pixelScale) / pixelScale; };
+  ctx.imageSmoothingEnabled = false;
   for (var i = 0; i < this.invaders.length; i++) {
     var invader = this.invaders[i];
-    ctx.drawImage(invaderImage, invader.x - invader.width / 2, invader.y - invader.height / 2, invader.width, invader.height);
+    ctx.drawImage(invaderSprite, snap(invader.x - invader.width / 2), snap(invader.y - invader.height / 2),
+      snap(invader.width), snap(invader.height));
   }
+  ctx.imageSmoothingEnabled = true;
 
 
   //  Draw bombs.
@@ -889,6 +905,25 @@ function Invader(x, y, rank, file, type) {
   this.type = type;
   this.width = 18;
   this.height = 14;
+}
+
+//  Draws an invader in the given colour onto a small canvas, one canvas pixel
+//  per grid pixel. It's drawn once per colour and scaled up when the game draws.
+function drawInvaderSprite(colour) {
+  var sprite = document.createElement('canvas');
+  sprite.width = INVADER_PIXELS[0].length;
+  sprite.height = INVADER_PIXELS.length;
+  var ctx = sprite.getContext('2d');
+  for (var y = 0; y < INVADER_PIXELS.length; y++) {
+    for (var x = 0; x < INVADER_PIXELS[y].length; x++) {
+      var pixel = INVADER_PIXELS[y].charAt(x);
+      if (pixel !== '.') {
+        ctx.fillStyle = pixel === 'o' ? '#000000' : colour;
+        ctx.fillRect(x, y, 1, 1);
+      }
+    }
+  }
+  return sprite;
 }
 
 
