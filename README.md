@@ -54,6 +54,8 @@ Every level, the invaders move faster, drop bombs more often, and the bombs fall
 
 The fleet and your fire rate stop growing at level 25. The invaders' speed doesn't.
 
+Within each wave, the fleet speeds up as you thin it out, like the arcade game. It's gentle at first: with half the invaders left they're about 1.4 times as fast, and with a quarter left twice as fast. The last few move five times as fast as the full fleet did.
+
 ## Run it locally
 
 Use a local web server. You can open `index.html` straight from disk, but your browser won't load the sound effects that way, so you'd be playing in silence.
@@ -91,6 +93,7 @@ All the tuning sits in the `config` object at the top of [`js/spaceinvaders.js`]
 | `shipSpeed` | `120` | How fast your ship moves |
 | `rocketMaxFireRate` | `2` | Shots per second |
 | `levelDifficultyMultiplier` | `0.2` | How much harder each level gets |
+| `invaderSpeedUpMax` | `5` | How much faster the last invaders in a wave get (`1` turns the speed-up off) |
 
 The invaders are drawn in code. `INVADER_TYPES`, near the top of the same file, holds each kind's pixel grids for its two poses and how many points it's worth. Edit a grid to redraw an invader, or add colours to `INVADER_COLOURS`.
 
