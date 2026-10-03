@@ -30,14 +30,16 @@ The invaders come in their original green. Switch on random colours and every wa
 
 Play it in your browser at **[azadmotala.github.io/InvaderZ](https://azadmotala.github.io/InvaderZ/)**. Nothing to install. On a phone or tablet, the game fills the screen and you steer with your thumb.
 
-| | Keyboard | Touch |
+| | Computer | Phone or tablet |
 |---|---|---|
 | Start / play again | <kbd>Space</kbd> | Tap |
 | Move | <kbd>←</kbd> <kbd>→</kbd> | Drag anywhere on the screen |
 | Fire | <kbd>Space</kbd> (hold it down to keep firing) | Keep your finger down |
-| Pause | <kbd>P</kbd> | **Pause** button, or switch to another app |
-| Sound on/off | The **mute** link under the game | **Mute** button |
-| Invader colours | The **random colours** link under the game | **Random colours** button |
+| Pause | <kbd>P</kbd> or the **Pause** button | **Pause** button, or switch to another app |
+| Sound on/off | **Mute** button | **Mute** button |
+| Invader colours | **Random colours** button | **Random colours** button |
+
+On a computer the buttons sit under the game. On a phone or tablet they're in the top corner.
 
 ### Rules
 

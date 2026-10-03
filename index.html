@@ -17,16 +17,12 @@
     <canvas id="gameCanvas"></canvas>
   </div>
   <div id="info">
-    <p>Arrow keys to move, space to fire, P to pause.</p>
-    <p>
-      <a id="muteLink" href="#" onclick="toggleMute(); return false;">mute</a> ·
-      <a id="coloursLink" href="#" onclick="toggleColours(); return false;">random colours</a>
-    </p>
-  </div>
-  <div id="touchbuttons">
-    <button id="pauseButton" type="button" onclick="game.togglePause()" hidden>Pause</button>
-    <button id="coloursButton" type="button" onclick="toggleColours()">Random colours</button>
-    <button id="muteButton" type="button" onclick="toggleMute()">Mute</button>
+    <p id="keys">Arrow keys to move, space to fire, P to pause.</p>
+    <div id="buttons">
+      <button id="pauseButton" type="button" onclick="game.togglePause()" hidden>Pause</button>
+      <button id="coloursButton" type="button" onclick="toggleColours()">Random colours</button>
+      <button id="muteButton" type="button" onclick="toggleMute()">Mute</button>
+    </div>
   </div>
 
   <script src="js/starfield.js"></script>
@@ -85,7 +81,7 @@
       game.keyUp(keycode);
     });
 
-    //  Touches go to the game, except taps on the buttons and links. Stopping
+    //  Touches go to the game, except taps on the buttons. Stopping
     //  the default keeps the browser from scrolling or zooming mid-wave.
     function onButton(e) {
       return e.target.closest && e.target.closest('button, a');
@@ -138,10 +134,14 @@
       pauseButton.textContent = paused ? 'Resume' : 'Pause';
       pauseButton.hidden = !(paused || state instanceof PlayState);
       document.getElementById('muteButton').textContent = game.sounds.mute ? 'Unmute' : 'Mute';
-      document.getElementById('muteLink').innerText = game.sounds.mute ? 'unmute' : 'mute';
       document.getElementById('coloursButton').textContent = game.randomColours ? 'Original colours' : 'Random colours';
-      document.getElementById('coloursLink').innerText = game.randomColours ? 'original colours' : 'random colours';
     }
+
+    //  Clicking a button mustn't give it keyboard focus, or the next press of
+    //  Space would press the button again instead of firing.
+    document.getElementById('buttons').addEventListener('mousedown', function (e) {
+      e.preventDefault();
+    });
 
     //  On touch screens, show just the play area, scaled to fill the screen.
     function fitGame() {
@@ -159,7 +159,7 @@
         ? (h - PLAY_AREA.height * scale) / 2
         : BUTTON_ROW_HEIGHT + (h - BUTTON_ROW_HEIGHT - PLAY_AREA.height * scale) / 3;
       var left = (w - PLAY_AREA.width * scale) / 2;
-      document.getElementById('touchbuttons').classList.toggle('column', column);
+      document.getElementById('buttons').classList.toggle('column', column);
 
       var gameContainer = document.getElementById('gamecontainer');
       gameContainer.style.left = left + 'px';

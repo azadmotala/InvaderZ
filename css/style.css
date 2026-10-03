@@ -36,12 +36,44 @@ html {
 	color: #999999;
 }
 
-/* Touch screens: the game is scaled to fit (see fitGame in index.html),
-   and the page doesn't scroll, zoom or select text under a dragging thumb. */
-#touchbuttons {
+/* Pause, colours and mute buttons: a row under the game on desktop. */
+#buttons {
+	display: flex;
+	justify-content: center;
+	gap: 8px;
+	margin-top: 12px;
+}
+
+/* Fixed widths, so changing labels never moves the buttons or the game. */
+#buttons button {
+	width: 84px;
+	height: 40px;
+	padding: 0;
+	font: 15px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	white-space: nowrap;
+	color: #ffffff;
+	background: rgba(255, 255, 255, 0.12);
+	border: 1px solid rgba(255, 255, 255, 0.35);
+	border-radius: 20px;
+	cursor: pointer;
+}
+
+#buttons #coloursButton {
+	width: 148px;
+}
+
+#buttons button[hidden] {
 	display: none;
 }
 
+@media (hover: hover) {
+	#buttons button:hover {
+		background: rgba(255, 255, 255, 0.22);
+	}
+}
+
+/* Touch screens: the game is scaled to fit (see fitGame in index.html),
+   and the page doesn't scroll, zoom or select text under a dragging thumb. */
 .touch,
 .touch body {
 	touch-action: none;
@@ -67,55 +99,42 @@ html {
 	position: absolute;
 }
 
+/* No keyboard hints on touch screens, and the buttons move to the corner. */
 .touch #info {
+	width: auto;
+}
+
+.touch #keys {
 	display: none;
 }
 
-.touch #touchbuttons {
-	display: flex;
-	gap: 8px;
+.touch #buttons {
 	position: fixed;
 	top: calc(8px + env(safe-area-inset-top));
 	right: calc(8px + env(safe-area-inset-right));
+	margin: 0;
 }
 
 /* Down the right-hand side in landscape (fitGame decides). */
-.touch #touchbuttons.column {
+.touch #buttons.column {
 	flex-direction: column;
 	align-items: flex-end;
 }
 
-/* Fixed widths, so changing labels never moves the buttons or the game. */
-#touchbuttons button {
-	width: 84px;
-	height: 40px;
-	padding: 0;
-	font: 15px "Helvetica Neue", Helvetica, Arial, sans-serif;
-	white-space: nowrap;
-	color: #ffffff;
-	background: rgba(255, 255, 255, 0.12);
-	border: 1px solid rgba(255, 255, 255, 0.35);
-	border-radius: 20px;
-}
-
-#touchbuttons #coloursButton {
-	width: 148px;
-}
-
-/* Pause is hidden outside of play, but keeps its place. */
-#touchbuttons button[hidden] {
+/* On touch screens Pause keeps its place when hidden, so nothing moves. */
+.touch #buttons button[hidden] {
 	display: block;
 	visibility: hidden;
 }
 
 /* Narrow phones: smaller buttons so all three fit across the top. */
 @media (max-width: 359px) {
-	#touchbuttons button {
+	#buttons button {
 		width: 72px;
 		font-size: 13px;
 	}
 
-	#touchbuttons #coloursButton {
+	#buttons #coloursButton {
 		width: 124px;
 	}
 }
