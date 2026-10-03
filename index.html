@@ -2,6 +2,7 @@
 <html>
 
 <head>
+  <meta charset="utf-8">
   <title>Space InvaderZ</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <!-- The ./ stops Vite's build reading these as package names. -->
@@ -16,12 +17,15 @@
     <canvas id="gameCanvas"></canvas>
   </div>
   <div id="info">
-    <p>Move with arrow keys or swipe, fire with the space bar or touch. The invaderz get faster and drop
-      more bombs as you complete each level!</p>
-    <p><a id="muteLink" href="#" onclick="toggleMute()">mute</a></p>
+    <p>Arrow keys to move, space to fire, P to pause.</p>
+    <p>
+      <a id="muteLink" href="#" onclick="toggleMute(); return false;">mute</a> ·
+      <a id="coloursLink" href="#" onclick="toggleColours(); return false;">random colours</a>
+    </p>
   </div>
   <div id="touchbuttons">
     <button id="pauseButton" type="button" onclick="game.togglePause()" hidden>Pause</button>
+    <button id="coloursButton" type="button" onclick="toggleColours()">Random colours</button>
     <button id="muteButton" type="button" onclick="toggleMute()">Mute</button>
   </div>
 
@@ -49,7 +53,9 @@
     //  800x600 canvas is mostly empty space around a 400x300 play area, so
     //  they only see this part of it, plus room for the buttons.
     var PLAY_AREA = { x: 180, y: 130, width: 440, height: 420 };
-    var BUTTON_BAR = { width: 180, height: 56 };
+    //  Room the buttons need down the right-hand side, or across the top.
+    var BUTTON_COLUMN_WIDTH = 164;
+    var BUTTON_ROW_HEIGHT = 56;
     var touchMode = window.matchMedia('(pointer: coarse)').matches;
     game.touchMode = touchMode;
     if (touchMode) {
@@ -120,6 +126,11 @@
       updateButtons();
     }
 
+    function toggleColours() {
+      game.toggleRandomColours();
+      updateButtons();
+    }
+
     function updateButtons() {
       var state = game.currentState();
       var paused = state instanceof PauseState;
@@ -128,23 +139,27 @@
       pauseButton.hidden = !(paused || state instanceof PlayState);
       document.getElementById('muteButton').textContent = game.sounds.mute ? 'Unmute' : 'Mute';
       document.getElementById('muteLink').innerText = game.sounds.mute ? 'unmute' : 'mute';
+      document.getElementById('coloursButton').textContent = game.randomColours ? 'Original colours' : 'Random colours';
+      document.getElementById('coloursLink').innerText = game.randomColours ? 'original colours' : 'random colours';
     }
 
     //  On touch screens, show just the play area, scaled to fill the screen.
     function fitGame() {
       var w = window.innerWidth;
       var h = window.innerHeight;
-      var scale = Math.min(w / PLAY_AREA.width, h / PLAY_AREA.height);
-      var top = (h - PLAY_AREA.height * scale) / 2;
 
-      //  If there's no room beside the game for the buttons (portrait),
-      //  put them above it and sit the game a little above centre, which
-      //  leaves room for a thumb underneath.
-      if ((w - PLAY_AREA.width * scale) / 2 < BUTTON_BAR.width) {
-        scale = Math.min(w / PLAY_AREA.width, (h - BUTTON_BAR.height) / PLAY_AREA.height);
-        top = BUTTON_BAR.height + (h - BUTTON_BAR.height - PLAY_AREA.height * scale) / 3;
-      }
+      //  Put the buttons down the right-hand side (landscape) or across the
+      //  top (portrait), whichever leaves the game bigger. Across the top,
+      //  the game sits a little above centre to leave room for a thumb.
+      var besideScale = Math.min((w - 2 * BUTTON_COLUMN_WIDTH) / PLAY_AREA.width, h / PLAY_AREA.height);
+      var belowScale = Math.min(w / PLAY_AREA.width, (h - BUTTON_ROW_HEIGHT) / PLAY_AREA.height);
+      var column = besideScale > belowScale;
+      var scale = column ? besideScale : belowScale;
+      var top = column
+        ? (h - PLAY_AREA.height * scale) / 2
+        : BUTTON_ROW_HEIGHT + (h - BUTTON_ROW_HEIGHT - PLAY_AREA.height * scale) / 3;
       var left = (w - PLAY_AREA.width * scale) / 2;
+      document.getElementById('touchbuttons').classList.toggle('column', column);
 
       var gameContainer = document.getElementById('gamecontainer');
       gameContainer.style.left = left + 'px';

@@ -14,7 +14,7 @@
 ![Vite](https://img.shields.io/badge/dev%20server-Vite-646CFF?logo=vite&logoColor=white)
 [![MIT license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-<a href="https://azadmotala.github.io/InvaderZ/"><img src="docs/screenshot.png" alt="InvaderZ gameplay: a fleet of blue pixel invaders over a starfield, with the player's ship firing up from below" width="480"></a>
+<a href="https://azadmotala.github.io/InvaderZ/"><img src="docs/screenshot.png" alt="InvaderZ gameplay: a fleet of green pixel invaders over a starfield, with the player's ship firing up from below" width="480"></a>
 
 [How to play](#how-to-play) · [Run it locally](#run-it-locally) · [Tweak it](#tweak-it) · [Credits](#credits) · [License](#license)
 
@@ -24,7 +24,7 @@
 
 The fleet marches side to side, drops a row every time it hits the edge, and bombs you on the way down. Shoot every last one and the next wave turns up faster, bigger and quicker to bomb. Let them reach the bottom and it's over.
 
-Each wave flies in one of three colours, picked at random.
+The invaders come in their original green. Switch on random colours and every wave turns up in a different colour from the last.
 
 ## How to play
 
@@ -37,6 +37,7 @@ Play it in your browser at **[azadmotala.github.io/InvaderZ](https://azadmotala.
 | Fire | <kbd>Space</kbd> (hold it down to keep firing) | Keep your finger down |
 | Pause | <kbd>P</kbd> | **Pause** button, or switch to another app |
 | Sound on/off | The **mute** link under the game | **Mute** button |
+| Invader colours | The **random colours** link under the game | **Random colours** button |
 
 ### Rules
 
@@ -107,7 +108,7 @@ InvaderZ/
 
 ## Credits
 
-InvaderZ is based on [spaceinvaders](https://github.com/dwmkerr/spaceinvaders) by Dave Kerr, which supplies the game engine, the starfield and the core gameplay. InvaderZ adds pixel-art sprites for the ship and the invaders, with a random invader colour for each wave.
+InvaderZ is based on [spaceinvaders](https://github.com/dwmkerr/spaceinvaders) by Dave Kerr, which supplies the game engine, the starfield and the core gameplay. InvaderZ adds pixel-art sprites for the ship and the invaders, an option to give every wave a new colour, and touch controls for phones and tablets.
 
 ## License
 

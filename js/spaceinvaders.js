@@ -26,6 +26,11 @@ var KEY_LEFT = 37;
 var KEY_RIGHT = 39;
 var KEY_SPACE = 32;
 
+//  Invader sprites are images/enemy1.png to enemy3.png. Number 2 is the
+//  original colour: green, like the invaders in the game this is based on.
+var INVADER_SPRITES = 3;
+var ORIGINAL_INVADER_SPRITE = 2;
+
 //  Creates an instance of the Game class.
 function Game() {
 
@@ -79,6 +84,16 @@ function Game() {
 
   //  Called whenever the state changes, so the page can update its buttons.
   this.onStateChange = null;
+
+  //  Invader colour: the original, or with randomColours on, a new colour
+  //  for each wave.
+  this.randomColours = false;
+  this.invaderSprite = ORIGINAL_INVADER_SPRITE;
+  this.invaderImages = {};
+  for (var sprite = 1; sprite <= INVADER_SPRITES; sprite++) {
+    this.invaderImages[sprite] = new Image();
+    this.invaderImages[sprite].src = 'images/enemy' + sprite + '.png';
+  }
 }
 
 //  Initialis the Game with a canvas.
@@ -205,6 +220,27 @@ Game.prototype.popState = function() {
     this.stateStack.pop();
     this.stateChanged();
   }
+};
+
+//  Switches between the original invader colour and random colours. A wave
+//  in play changes straight away; otherwise the next wave picks.
+Game.prototype.toggleRandomColours = function() {
+  this.randomColours = !this.randomColours;
+  var state = this.currentState();
+  if (state instanceof PlayState || state instanceof PauseState) {
+    this.pickInvaderColour();
+  }
+};
+
+//  Picks the invader colour for a wave. With random colours on, it's never
+//  the colour that's showing now, so every wave looks different.
+Game.prototype.pickInvaderColour = function() {
+  if (!this.randomColours) {
+    this.invaderSprite = ORIGINAL_INVADER_SPRITE;
+    return;
+  }
+  var sprite = Math.floor(Math.random() * (INVADER_SPRITES - 1)) + 1;
+  this.invaderSprite = sprite >= this.invaderSprite ? sprite + 1 : sprite;
 };
 
 //  Pauses or resumes play. Does nothing outside of play.
@@ -418,13 +454,13 @@ PlayState.prototype.enter = function(game) {
   var ranks = this.config.invaderRanks + 0.1 * limitLevel;
   var files = this.config.invaderFiles + 0.2 * limitLevel;
   var invaders = [];
-  var rndm = Math.floor(Math.random() * 3) + 1
+  game.pickInvaderColour();
   for (var rank = 0; rank < ranks; rank++) {
     for (var file = 0; file < files; file++) {
       invaders.push(new Invader(
         (game.width / 2) + ((files / 2 - file) * 200 / files),
         (game.gameBounds.top + rank * 20),
-        rank, file, 'Invader', rndm)); 
+        rank, file, 'Invader'));
     }
   }
   this.invaders = invaders;
@@ -653,9 +689,10 @@ PlayState.prototype.draw = function(game, dt, ctx) {
   //   ctx.fillRect(invader.x - invader.width / 2, invader.y - invader.height / 2, invader.width, invader.height);
   // }
 
+  var invaderImage = game.invaderImages[game.invaderSprite];
   for (var i = 0; i < this.invaders.length; i++) {
     var invader = this.invaders[i];
-    ctx.drawImage(invader.image, invader.x - invader.width / 2, invader.y - invader.height / 2, invader.width, invader.height);
+    ctx.drawImage(invaderImage, invader.x - invader.width / 2, invader.y - invader.height / 2, invader.width, invader.height);
   }
 
 
@@ -844,7 +881,7 @@ function Bomb(x, y, velocity) {
     Invader's have position, type, rank/file and that's about it. 
 */
 
-function Invader(x, y, rank, file, type, imageNumber) {
+function Invader(x, y, rank, file, type) {
   this.x = x;
   this.y = y;
   this.rank = rank;
@@ -852,8 +889,6 @@ function Invader(x, y, rank, file, type, imageNumber) {
   this.type = type;
   this.width = 18;
   this.height = 14;
-  this.image = new Image();
-  this.image.src = `images/enemy${imageNumber}.png`;
 }
 
 

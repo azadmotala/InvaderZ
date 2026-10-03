@@ -32,6 +32,8 @@ html {
 	width: 800px;
 	margin-left: auto;
 	margin-right: auto;
+	text-align: center;
+	color: #999999;
 }
 
 /* Touch screens: the game is scaled to fit (see fitGame in index.html),
@@ -77,17 +79,43 @@ html {
 	right: calc(8px + env(safe-area-inset-right));
 }
 
+/* Down the right-hand side in landscape (fitGame decides). */
+.touch #touchbuttons.column {
+	flex-direction: column;
+	align-items: flex-end;
+}
+
+/* Fixed widths, so changing labels never moves the buttons or the game. */
 #touchbuttons button {
-	min-width: 76px;
+	width: 84px;
 	height: 40px;
-	padding: 0 16px;
+	padding: 0;
 	font: 15px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	white-space: nowrap;
 	color: #ffffff;
 	background: rgba(255, 255, 255, 0.12);
 	border: 1px solid rgba(255, 255, 255, 0.35);
 	border-radius: 20px;
 }
 
+#touchbuttons #coloursButton {
+	width: 148px;
+}
+
+/* Pause is hidden outside of play, but keeps its place. */
 #touchbuttons button[hidden] {
-	display: none;
+	display: block;
+	visibility: hidden;
+}
+
+/* Narrow phones: smaller buttons so all three fit across the top. */
+@media (max-width: 359px) {
+	#touchbuttons button {
+		width: 72px;
+		font-size: 13px;
+	}
+
+	#touchbuttons #coloursButton {
+		width: 124px;
+	}
 }
