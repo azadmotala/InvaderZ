@@ -861,8 +861,9 @@ LevelIntroState.prototype.draw = function(game, dt, ctx) {
 function Ship(x, y) {
   this.x = x;
   this.y = y;
+  //  The same shape as images/player.png (50x48), so it isn't squashed.
   this.width = 20;
-  this.height = 16;
+  this.height = 19;
   this.image = new Image();
   this.image.src = `images/player.png`;
 }
