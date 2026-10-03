@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="images/ufo.png" alt="Mystery UFO" width="64">
+
 <img src="images/squid.png" alt="Squid invader" width="32">&nbsp;&nbsp;&nbsp;<img src="images/crab.png" alt="Crab invader" width="44">&nbsp;&nbsp;&nbsp;<img src="images/octopus.png" alt="Octopus invader" width="48">
 
 # Invaders
@@ -45,6 +47,8 @@ Play it in your browser at **[azadmotala.github.io/invaders](https://azadmotala.
 | Invader colours | **Random colours** button | **Random colours** button |
 
 On a computer the buttons sit under the game. On a phone or tablet they're in the top corner.
+
+The start screen shows which version you're playing. If it's older than the [latest release](https://github.com/azadmotala/invaders/releases), reload the page. On a phone, use the reload button in the address bar, since pulling down to refresh doesn't work in the game.
 
 ### Rules
 
@@ -106,9 +110,13 @@ All the tuning sits in the `config` object at the top of [`js/spaceinvaders.js`]
 | `shieldCount` | `4` | How many shields there are (`0` for none) |
 | `extraLifeScore` | `1500` | The score that earns the extra life (`0` for none) |
 
-The invaders are drawn in code. `INVADER_TYPES`, near the top of the same file, holds each kind's pixel grids for its two poses and how many points it's worth. Edit a grid to redraw an invader, or add colours to `INVADER_COLOURS`.
+The invaders are drawn in code. `INVADER_TYPES`, near the top of the same file, holds each kind's pixel grids for its two poses and how many points it's worth. Edit a grid to redraw an invader, or add colours to `INVADER_COLOURS`. The mystery UFO (`UFO_PIXELS`) and the shields (`SHIELD_PIXELS`) are drawn the same way.
 
 Add `?debug=true` to the URL and the game outlines the play area.
+
+### Releasing a version
+
+Set the new version in two places: `"version"` in `package.json`, and the `?v=` at the end of each stylesheet and script link in `index.html`. The `?v=` makes browsers load the new files instead of older cached copies, and the start screen reads its version from there.
 
 ## Project layout
 
@@ -116,10 +124,10 @@ Add `?debug=true` to the URL and the game outlines the play area.
 invaders/
 ├── index.html            Page, canvas, input handling and touch-screen layout
 ├── js/
-│   ├── spaceinvaders.js  Game loop, states, ship, invaders and sound
+│   ├── spaceinvaders.js  Game loop, ship, invaders, UFO, shields, scoring and sound
 │   └── starfield.js      Scrolling star background
 ├── css/                  Page styles
-├── images/               Ship sprite, and invader pictures for the README
+├── images/               Ship sprite, and invader and UFO pictures for the README
 ├── sounds/               Sound effects
 ├── docs/                 Screenshot
 └── vite.config.js        Settings for npm run build
