@@ -6,7 +6,7 @@
 
 **The arcade classic, in plain JavaScript. Clear the sky and they come back faster.**
 
-<a href="https://azadmotala.github.io/InvaderZ/"><img src="https://img.shields.io/badge/%E2%96%B6%20Play%20now-in%20your%20browser-2ea44f?style=for-the-badge" alt="Play now in your browser" height="36"></a>
+<a href="https://azadmotala.github.io/invaders/"><img src="https://img.shields.io/badge/%E2%96%B6%20Play%20now-in%20your%20browser-2ea44f?style=for-the-badge" alt="Play now in your browser" height="36"></a>
 
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black)
 ![HTML5 Canvas](https://img.shields.io/badge/HTML5-Canvas-E34F26?logo=html5&logoColor=white)
@@ -14,7 +14,7 @@
 ![Vite](https://img.shields.io/badge/dev%20server-Vite-646CFF?logo=vite&logoColor=white)
 [![MIT license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-<a href="https://azadmotala.github.io/InvaderZ/"><img src="docs/screenshot.png" alt="InvaderZ gameplay: a fleet of green pixel invaders over a starfield, with the player's ship firing up from below" width="480"></a>
+<a href="https://azadmotala.github.io/invaders/"><img src="docs/screenshot.png" alt="InvaderZ gameplay: a fleet of green pixel invaders over a starfield, with the player's ship firing up from below" width="480"></a>
 
 [How to play](#how-to-play) · [Run it locally](#run-it-locally) · [Tweak it](#tweak-it) · [Credits](#credits) · [License](#license)
 
@@ -28,7 +28,7 @@ The invaders come in their original green. Switch on random colours and every wa
 
 ## How to play
 
-Play it in your browser at **[azadmotala.github.io/InvaderZ](https://azadmotala.github.io/InvaderZ/)**. Nothing to install. On a phone or tablet, the game fills the screen and you steer with your thumb.
+Play it in your browser at **[azadmotala.github.io/invaders](https://azadmotala.github.io/invaders/)**. Nothing to install. On a phone or tablet, the game fills the screen and you steer with your thumb.
 
 | | Computer | Phone or tablet |
 |---|---|---|
@@ -60,8 +60,8 @@ Use a local web server. You can open `index.html` straight from disk, but your b
 With [Node.js](https://nodejs.org):
 
 ```bash
-git clone https://github.com/azadmotala/InvaderZ.git
-cd InvaderZ
+git clone https://github.com/azadmotala/invaders.git
+cd invaders
 npm install
 npm run dev
 ```
@@ -97,7 +97,7 @@ Add `?debug=true` to the URL and the game outlines the play area.
 ## Project layout
 
 ```
-InvaderZ/
+invaders/
 ├── index.html            Page, canvas, input handling and touch-screen layout
 ├── js/
 │   ├── spaceinvaders.js  Game loop, states, ship, invaders and sound
