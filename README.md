@@ -28,15 +28,15 @@ Each wave flies in one of three colours, picked at random.
 
 ## How to play
 
-Play it in your browser at **[azadmotala.github.io/InvaderZ](https://azadmotala.github.io/InvaderZ/)**. Nothing to install.
+Play it in your browser at **[azadmotala.github.io/InvaderZ](https://azadmotala.github.io/InvaderZ/)**. Nothing to install. On a phone or tablet, the game fills the screen and you steer with your thumb.
 
 | | Keyboard | Touch |
 |---|---|---|
 | Start / play again | <kbd>Space</kbd> | Tap |
-| Move | <kbd>←</kbd> <kbd>→</kbd> | Drag left or right |
-| Fire | <kbd>Space</kbd> (hold it down to keep firing) | Tap |
-| Pause | <kbd>P</kbd> | — |
-| Sound on/off | The **mute** link under the game | Same |
+| Move | <kbd>←</kbd> <kbd>→</kbd> | Drag anywhere on the screen |
+| Fire | <kbd>Space</kbd> (hold it down to keep firing) | Keep your finger down |
+| Pause | <kbd>P</kbd> | **Pause** button, or switch to another app |
+| Sound on/off | The **mute** link under the game | **Mute** button |
 
 ### Rules
 
@@ -95,7 +95,7 @@ Add `?debug=true` to the URL and the game outlines the play area.
 
 ```
 InvaderZ/
-├── index.html            Page, canvas and input handling
+├── index.html            Page, canvas, input handling and touch-screen layout
 ├── js/
 │   ├── spaceinvaders.js  Game loop, states, ship, invaders and sound
 │   └── starfield.js      Scrolling star background

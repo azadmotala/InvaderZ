@@ -70,8 +70,15 @@ function Game() {
   //  All sounds.
   this.sounds = null;
 
-  //  The previous x position, used for touch.
-  this.previousX = 0;
+  //  Touch input: true once the player is using a touch screen, the finger
+  //  that's steering the ship, and how far it has dragged (in game pixels)
+  //  since the last update.
+  this.touchMode = false;
+  this.touch = null;
+  this.touchDrag = 0;
+
+  //  Called whenever the state changes, so the page can update its buttons.
+  this.onStateChange = null;
 }
 
 //  Initialis the Game with a canvas.
@@ -109,6 +116,13 @@ Game.prototype.moveToState = function(state) {
   //  Set the current state.
   this.stateStack.pop();
   this.stateStack.push(state);
+  this.stateChanged();
+};
+
+Game.prototype.stateChanged = function() {
+  if (this.onStateChange) {
+    this.onStateChange();
+  }
 };
 
 //  Start the Game.
@@ -176,6 +190,7 @@ Game.prototype.pushState = function(state) {
   }
   //  Set the current state.
   this.stateStack.push(state);
+  this.stateChanged();
 };
 
 Game.prototype.popState = function() {
@@ -188,6 +203,17 @@ Game.prototype.popState = function() {
 
     //  Set the current state.
     this.stateStack.pop();
+    this.stateChanged();
+  }
+};
+
+//  Pauses or resumes play. Does nothing outside of play.
+Game.prototype.togglePause = function() {
+  var state = this.currentState();
+  if (state instanceof PauseState) {
+    this.popState();
+  } else if (state instanceof PlayState) {
+    this.pushState(new PauseState());
   }
 };
 
@@ -205,29 +231,54 @@ Game.prototype.keyDown = function(keyCode) {
   }
 };
 
-Game.prototype.touchstart = function(s) {
-  if (this.currentState() && this.currentState().keyDown) {
-    this.currentState().keyDown(this, KEY_SPACE);
+//  Touch controls: drag anywhere to move the ship, and it keeps firing while
+//  a finger is down, like holding the space bar.
+Game.prototype.touchstart = function(e) {
+  this.touchMode = true;
+  if (!this.touch) {
+    var touch = e.changedTouches[0];
+    this.touch = { id: touch.identifier, x: touch.clientX };
   }
-};
+  this.pressedKeys[KEY_SPACE] = true;
 
-Game.prototype.touchend = function(s) {
-  delete this.pressedKeys[KEY_RIGHT];
-  delete this.pressedKeys[KEY_LEFT];
+  //  A tap resumes a paused game. Otherwise it acts like the space bar.
+  var state = this.currentState();
+  if (state instanceof PauseState) {
+    this.popState();
+  } else if (state && state.keyDown) {
+    state.keyDown(this, KEY_SPACE);
+  }
 };
 
 Game.prototype.touchmove = function(e) {
-  var currentX = e.changedTouches[0].pageX;
-  if (this.previousX > 0) {
-    if (currentX > this.previousX) {
-      delete this.pressedKeys[KEY_LEFT];
-      this.pressedKeys[KEY_RIGHT] = true;
-    } else {
-      delete this.pressedKeys[KEY_RIGHT];
-      this.pressedKeys[KEY_LEFT] = true;
+  for (var i = 0; i < e.changedTouches.length; i++) {
+    var touch = e.changedTouches[i];
+    if (!this.touch || touch.identifier !== this.touch.id) {
+      continue;
+    }
+
+    //  Only steer during play, and convert from screen to game pixels.
+    if (this.currentState() instanceof PlayState) {
+      var scale = this.gameCanvas.getBoundingClientRect().width / this.width;
+      this.touchDrag += (touch.clientX - this.touch.x) / scale;
+    }
+    this.touch.x = touch.clientX;
+  }
+};
+
+Game.prototype.touchend = function(e) {
+  if (e.touches.length === 0) {
+    this.touch = null;
+    delete this.pressedKeys[KEY_SPACE];
+    return;
+  }
+
+  //  If the steering finger lifted, steer with one that's still down.
+  for (var i = 0; i < e.changedTouches.length; i++) {
+    if (this.touch && e.changedTouches[i].identifier === this.touch.id) {
+      this.touch = { id: e.touches[0].identifier, x: e.touches[0].clientX };
     }
   }
-  this.previousX = currentX;
 };
 
 //  Inform the game a key is up.
@@ -269,7 +320,12 @@ WelcomeState.prototype.draw = function(game, dt, ctx) {
   ctx.textAlign = "center";
   ctx.fillText("Space InvaderZ", game.width / 2, game.height / 2 - 40);
   ctx.font = "16px Arial";
-  ctx.fillText("Press 'Space' or touch to start.", game.width / 2, game.height / 2);
+  if (game.touchMode) {
+    ctx.fillText("Tap to start", game.width / 2, game.height / 2);
+    ctx.fillText("Drag anywhere to move. Hold to keep firing.", game.width / 2, game.height / 2 + 30);
+  } else {
+    ctx.fillText("Press 'Space' or touch to start.", game.width / 2, game.height / 2);
+  }
 };
 
 WelcomeState.prototype.keyDown = function(game, keyCode) {
@@ -303,7 +359,7 @@ GameOverState.prototype.draw = function(game, dt, ctx) {
   ctx.font = "16px Arial";
   ctx.fillText("You scored " + game.score + " and got to level " + game.level, game.width / 2, game.height / 2);
   ctx.font = "16px Arial";
-  ctx.fillText("Press 'Space' to play again.", game.width / 2, game.height / 2 + 40);
+  ctx.fillText(game.touchMode ? "Tap to play again." : "Press 'Space' to play again.", game.width / 2, game.height / 2 + 40);
 };
 
 GameOverState.prototype.keyDown = function(game, keyCode) {
@@ -327,6 +383,9 @@ function PlayState(config, level) {
   this.invadersAreDropping = false;
   this.lastRocketTime = null;
 
+  //  Where a touch drag is taking the ship, if anywhere.
+  this.shipTargetX = null;
+
   //  Game entities.
   this.ship = null;
   this.invaders = [];
@@ -343,6 +402,7 @@ PlayState.prototype.enter = function(game) {
   this.invaderCurrentVelocity = 10;
   this.invaderCurrentDropDistance = 0;
   this.invadersAreDropping = false;
+  game.touchDrag = 0;
 
   //  Set the ship speed for this level, as well as invader params.
   var levelMultiplier = this.level * this.config.levelDifficultyMultiplier;
@@ -384,6 +444,24 @@ PlayState.prototype.update = function(game, dt) {
   }
   if (game.pressedKeys[KEY_RIGHT]) {
     this.ship.x += this.shipSpeed * dt;
+  }
+
+  //  A touch drag moves the ship's target, and the ship heads there at the
+  //  same speed as the arrow keys, so touch players get no speed advantage.
+  if (game.touchDrag) {
+    var from = this.shipTargetX === null ? this.ship.x : this.shipTargetX;
+    this.shipTargetX = Math.min(Math.max(from + game.touchDrag, game.gameBounds.left), game.gameBounds.right);
+    game.touchDrag = 0;
+  }
+  if (this.shipTargetX !== null) {
+    var step = this.shipSpeed * dt;
+    var gap = this.shipTargetX - this.ship.x;
+    if (Math.abs(gap) <= step) {
+      this.ship.x = this.shipTargetX;
+      this.shipTargetX = null;
+    } else {
+      this.ship.x += gap > 0 ? step : -step;
+    }
   }
   if (game.pressedKeys[KEY_SPACE]) {
     this.fireRocket();
@@ -667,6 +745,9 @@ PauseState.prototype.draw = function(game, dt, ctx) {
   ctx.textBaseline = "middle";
   ctx.textAlign = "center";
   ctx.fillText("Paused", game.width / 2, game.height / 2);
+  if (game.touchMode) {
+    ctx.fillText("Tap to resume.", game.width / 2, game.height / 2 + 24);
+  }
   return;
 };
 
@@ -816,6 +897,14 @@ Sounds.prototype.init = function() {
   context = window.AudioContext || window.webkitAudioContext;
   this.audioContext = new context();
   this.mute = false;
+};
+
+//  Browsers, iPhones especially, keep audio switched off until the player
+//  interacts with the page, so call this from an input event.
+Sounds.prototype.unlock = function() {
+  if (this.audioContext.state === 'suspended') {
+    this.audioContext.resume();
+  }
 };
 
 Sounds.prototype.loadSound = function(name, url) {

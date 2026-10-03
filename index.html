@@ -3,6 +3,7 @@
 
 <head>
   <title>Space InvaderZ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <!-- The ./ stops Vite's build reading these as package names. -->
   <link href="./css/core.css" type="text/css" rel="stylesheet">
   <link href="./css/typeography.css" type="text/css" rel="stylesheet">
@@ -19,7 +20,11 @@
       more bombs as you complete each level!</p>
     <p><a id="muteLink" href="#" onclick="toggleMute()">mute</a></p>
   </div>
-  
+  <div id="touchbuttons">
+    <button id="pauseButton" type="button" onclick="game.togglePause()" hidden>Pause</button>
+    <button id="muteButton" type="button" onclick="toggleMute()">Mute</button>
+  </div>
+
   <script src="js/starfield.js"></script>
   <script src="js/spaceinvaders.js"></script>
   <script>
@@ -40,6 +45,22 @@
     //  Initialise it with the game canvas.
     game.initialise(canvas);
 
+    //  Phones and tablets get touch controls and a game scaled to fit. The
+    //  800x600 canvas is mostly empty space around a 400x300 play area, so
+    //  they only see this part of it, plus room for the buttons.
+    var PLAY_AREA = { x: 180, y: 130, width: 440, height: 420 };
+    var BUTTON_BAR = { width: 180, height: 56 };
+    var touchMode = window.matchMedia('(pointer: coarse)').matches;
+    game.touchMode = touchMode;
+    if (touchMode) {
+      document.documentElement.classList.add('touch');
+      fitGame();
+      window.addEventListener('resize', fitGame);
+    }
+
+    //  Keep the touch buttons in step with the game.
+    game.onStateChange = updateButtons;
+
     //  Start the game.
     game.start();
 
@@ -58,21 +79,92 @@
       game.keyUp(keycode);
     });
 
-    window.addEventListener("touchstart", function (e) {
+    //  Touches go to the game, except taps on the buttons and links. Stopping
+    //  the default keeps the browser from scrolling or zooming mid-wave.
+    function onButton(e) {
+      return e.target.closest && e.target.closest('button, a');
+    }
+    window.addEventListener('touchstart', function (e) {
+      if (onButton(e)) return;
+      e.preventDefault();
       game.touchstart(e);
-    }, false);
-
-    window.addEventListener('touchend', function (e) {
-      game.touchend(e);
-    }, false);
-
+    }, { passive: false });
     window.addEventListener('touchmove', function (e) {
+      if (onButton(e)) return;
+      e.preventDefault();
       game.touchmove(e);
-    }, false);
+    }, { passive: false });
+    ['touchend', 'touchcancel'].forEach(function (type) {
+      window.addEventListener(type, function (e) {
+        if (!onButton(e)) e.preventDefault();
+        game.touchend(e);
+      }, { passive: false });
+    });
+
+    //  Browsers keep sound off until the player interacts with the page.
+    ['keydown', 'touchstart', 'touchend', 'click'].forEach(function (type) {
+      window.addEventListener(type, function () {
+        game.sounds.unlock();
+      });
+    });
+
+    //  On touch screens, pause when the player switches to another app.
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden && game.touchMode && game.currentState() instanceof PlayState) {
+        game.togglePause();
+      }
+    });
 
     function toggleMute() {
       game.mute();
-      document.getElementById("muteLink").innerText = game.sounds.mute ? "unmute" : "mute";
+      updateButtons();
+    }
+
+    function updateButtons() {
+      var state = game.currentState();
+      var paused = state instanceof PauseState;
+      var pauseButton = document.getElementById('pauseButton');
+      pauseButton.textContent = paused ? 'Resume' : 'Pause';
+      pauseButton.hidden = !(paused || state instanceof PlayState);
+      document.getElementById('muteButton').textContent = game.sounds.mute ? 'Unmute' : 'Mute';
+      document.getElementById('muteLink').innerText = game.sounds.mute ? 'unmute' : 'mute';
+    }
+
+    //  On touch screens, show just the play area, scaled to fill the screen.
+    function fitGame() {
+      var w = window.innerWidth;
+      var h = window.innerHeight;
+      var scale = Math.min(w / PLAY_AREA.width, h / PLAY_AREA.height);
+      var top = (h - PLAY_AREA.height * scale) / 2;
+
+      //  If there's no room beside the game for the buttons (portrait),
+      //  put them above it and sit the game a little above centre, which
+      //  leaves room for a thumb underneath.
+      if ((w - PLAY_AREA.width * scale) / 2 < BUTTON_BAR.width) {
+        scale = Math.min(w / PLAY_AREA.width, (h - BUTTON_BAR.height) / PLAY_AREA.height);
+        top = BUTTON_BAR.height + (h - BUTTON_BAR.height - PLAY_AREA.height * scale) / 3;
+      }
+      var left = (w - PLAY_AREA.width * scale) / 2;
+
+      var gameContainer = document.getElementById('gamecontainer');
+      gameContainer.style.left = left + 'px';
+      gameContainer.style.top = top + 'px';
+      gameContainer.style.width = PLAY_AREA.width * scale + 'px';
+      gameContainer.style.height = PLAY_AREA.height * scale + 'px';
+      canvas.style.left = -PLAY_AREA.x * scale + 'px';
+      canvas.style.top = -PLAY_AREA.y * scale + 'px';
+      canvas.style.width = game.width * scale + 'px';
+      canvas.style.height = game.height * scale + 'px';
+
+      //  Draw at the screen's real resolution so the sprites and text stay sharp.
+      var ratio = Math.min(scale * (window.devicePixelRatio || 1), 3);
+      var width = Math.round(game.width * ratio);
+      var height = Math.round(game.height * ratio);
+      if (canvas.width !== width || canvas.height !== height) {
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext('2d').setTransform(width / game.width, 0, 0, height / game.height, 0, 0);
+      }
     }
   </script>
 </body>

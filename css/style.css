@@ -33,3 +33,61 @@ html {
 	margin-left: auto;
 	margin-right: auto;
 }
+
+/* Touch screens: the game is scaled to fit (see fitGame in index.html),
+   and the page doesn't scroll, zoom or select text under a dragging thumb. */
+#touchbuttons {
+	display: none;
+}
+
+.touch,
+.touch body {
+	touch-action: none;
+	overscroll-behavior: none;
+	-webkit-user-select: none;
+	user-select: none;
+	-webkit-touch-callout: none;
+	-webkit-tap-highlight-color: transparent;
+}
+
+/* No gap under the starfield, so there's nothing to scroll. */
+.touch #starfield canvas {
+	display: block;
+}
+
+.touch #gamecontainer {
+	position: absolute;
+	overflow: hidden;
+	margin: 0;
+}
+
+.touch #gameCanvas {
+	position: absolute;
+}
+
+.touch #info {
+	display: none;
+}
+
+.touch #touchbuttons {
+	display: flex;
+	gap: 8px;
+	position: fixed;
+	top: calc(8px + env(safe-area-inset-top));
+	right: calc(8px + env(safe-area-inset-right));
+}
+
+#touchbuttons button {
+	min-width: 76px;
+	height: 40px;
+	padding: 0 16px;
+	font: 15px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #ffffff;
+	background: rgba(255, 255, 255, 0.12);
+	border: 1px solid rgba(255, 255, 255, 0.35);
+	border-radius: 20px;
+}
+
+#touchbuttons button[hidden] {
+	display: none;
+}
