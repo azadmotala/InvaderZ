@@ -118,6 +118,7 @@ function Game() {
     invaderInitialVelocity: 25,
     invaderAcceleration: 0,
     invaderDropDistance: 20,
+    invaderSpeedUpMax: 5,
     rocketVelocity: 120,
     rocketMaxFireRate: 2,
     gameWidth: 400,
@@ -500,6 +501,9 @@ function PlayState(config, level) {
   this.invadersAreDropping = false;
   this.lastRocketTime = null;
 
+  //  How many invaders the wave started with.
+  this.invaderCount = 0;
+
   //  Which pose the invaders are in, and how far they've moved since it changed.
   this.invaderPose = 0;
   this.invaderStepDistance = 0;
@@ -552,9 +556,17 @@ PlayState.prototype.enter = function(game) {
     }
   }
   this.invaders = invaders;
+  this.invaderCount = invaders.length;
   this.invaderCurrentVelocity = this.invaderInitialVelocity;
   this.invaderVelocity = { x: -this.invaderInitialVelocity, y: 0 };
   this.invaderNextVelocity = null;
+};
+
+//  Like the arcade game, the fleet speeds up as you thin it out. It's gentle
+//  at first: with half the invaders left it's about 1.4 times as fast, with
+//  a quarter left twice as fast, and the last few reach invaderSpeedUpMax.
+PlayState.prototype.fleetSpeedUp = function() {
+  return Math.min(Math.sqrt(this.invaderCount / this.invaders.length), this.config.invaderSpeedUpMax);
 };
 
 PlayState.prototype.update = function(game, dt) {
@@ -621,12 +633,19 @@ PlayState.prototype.update = function(game, dt) {
     }
   }
 
-  //  Move the invaders.
+  //  Move the invaders, faster the fewer are left. A drop stops at exactly
+  //  invaderDropDistance, however fast the fleet is going.
+  var speedUp = this.fleetSpeedUp();
+  var dx = this.invaderVelocity.x * speedUp * dt;
+  var dy = this.invaderVelocity.y * speedUp * dt;
+  if (this.invadersAreDropping) {
+    dy = Math.min(dy, this.config.invaderDropDistance - this.invaderCurrentDropDistance);
+  }
   var hitLeft = false, hitRight = false, hitBottom = false;
   for (i = 0; i < this.invaders.length; i++) {
     var invader = this.invaders[i];
-    var newx = invader.x + this.invaderVelocity.x * dt;
-    var newy = invader.y + this.invaderVelocity.y * dt;
+    var newx = invader.x + dx;
+    var newy = invader.y + dy;
     if (hitLeft == false && newx < game.gameBounds.left) {
       hitLeft = true;
     }
@@ -645,7 +664,7 @@ PlayState.prototype.update = function(game, dt) {
 
   //  Update invader velocities.
   if (this.invadersAreDropping) {
-    this.invaderCurrentDropDistance += this.invaderVelocity.y * dt;
+    this.invaderCurrentDropDistance += dy;
     if (this.invaderCurrentDropDistance >= this.config.invaderDropDistance) {
       this.invadersAreDropping = false;
       this.invaderVelocity = this.invaderNextVelocity;
@@ -673,7 +692,7 @@ PlayState.prototype.update = function(game, dt) {
 
   //  Swap the invaders' pose each time the fleet moves a step, so they march.
   //  The faster they go, the faster they march.
-  this.invaderStepDistance += (Math.abs(this.invaderVelocity.x) + Math.abs(this.invaderVelocity.y)) * dt;
+  this.invaderStepDistance += Math.abs(dx) + Math.abs(dy);
   if (this.invaderStepDistance >= INVADER_STEP) {
     this.invaderStepDistance -= INVADER_STEP;
     this.invaderPose = 1 - this.invaderPose;
