@@ -15,7 +15,7 @@
 [![Latest release](https://img.shields.io/github/v/release/azadmotala/invaders)](https://github.com/azadmotala/invaders/releases)
 [![MIT license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-<a href="https://azadmotala.github.io/invaders/"><img src="docs/screenshot.png" alt="Invaders gameplay: rows of green squid, crab and octopus invaders over a starfield, a red mystery UFO crossing above them, and the player's ship firing up from below" width="480"></a>
+<a href="https://azadmotala.github.io/invaders/"><img src="docs/screenshot.png" alt="Invaders gameplay: rows of green squid, crab and octopus invaders over a starfield, a red mystery UFO crossing above them, four chipped green shields, and the player's ship firing up from below" width="480"></a>
 
 [How to play](#how-to-play) · [Run it locally](#run-it-locally) · [Tweak it](#tweak-it) · [What's new](https://github.com/azadmotala/invaders/releases) · [Credits](#credits) · [License](#license)
 
@@ -28,6 +28,8 @@ The fleet marches side to side, drops a row every time it hits the edge, and bom
 The fleet lines up like the 1978 arcade game: squids along the top, crabs in the middle and octopuses in the bottom two rows, all marching in two poses to a four-note heartbeat. They come in their original green. Switch on random colours and every wave turns up in a different colour from the last.
 
 Every so often a red mystery UFO warbles across the top. Shoot it for a mystery score.
+
+Four shields stand between you and the fleet. Bombs blast holes in them from above and your own shots blast them from below, so they wear away as you play, and invaders crush whatever they march into. You get fresh shields with every wave.
 
 ## How to play
 
@@ -100,6 +102,7 @@ All the tuning sits in the `config` object at the top of [`js/spaceinvaders.js`]
 | `ufoMinInterval` / `ufoMaxInterval` | `15` / `30` | Seconds between mystery UFOs |
 | `ufoSpeed` | `70` | How fast the mystery UFO flies |
 | `touchShipSpeed` | `360` | Top speed of the ship when you drag it on a touch screen |
+| `shieldCount` | `4` | How many shields there are (`0` for none) |
 
 The invaders are drawn in code. `INVADER_TYPES`, near the top of the same file, holds each kind's pixel grids for its two poses and how many points it's worth. Edit a grid to redraw an invader, or add colours to `INVADER_COLOURS`.
 
@@ -122,7 +125,7 @@ invaders/
 
 ## Credits
 
-Invaders is based on [spaceinvaders](https://github.com/dwmkerr/spaceinvaders) by Dave Kerr, which supplies the game engine, the starfield and the core gameplay. This version adds a pixel-art ship, the arcade game's three kinds of invader drawn in code with their marching poses and points, the heartbeat, the speed-up and the mystery UFO, an option to give every wave a new colour, Pause and Mute buttons, and touch controls for phones and tablets.
+Invaders is based on [spaceinvaders](https://github.com/dwmkerr/spaceinvaders) by Dave Kerr, which supplies the game engine, the starfield and the core gameplay. This version adds a pixel-art ship, the arcade game's three kinds of invader drawn in code with their marching poses and points, the heartbeat, the speed-up, the mystery UFO and the shields, an option to give every wave a new colour, Pause and Mute buttons, and touch controls for phones and tablets.
 
 ## License
 
