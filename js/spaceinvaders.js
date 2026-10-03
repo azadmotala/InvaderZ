@@ -102,6 +102,14 @@ var INVADER_PIXEL_SIZE = 1.5;
 //  The invaders swap poses each time the fleet moves this far.
 var INVADER_STEP = 16;
 
+//  The march, and the heartbeat with it, never goes faster than this, so the
+//  heartbeat stays a beat rather than a buzz.
+var INVADER_MAX_STEPS_PER_SECOND = 8;
+
+//  The heartbeat: four low notes, each lower than the last, one per step of
+//  the fleet, as in the arcade game. Frequencies in Hz.
+var HEARTBEAT_NOTES = [98, 87.3, 77.8, 73.4];
+
 //  Invader body colours. Green is the original, like the invaders in the
 //  game this is based on.
 var INVADER_COLOURS = ['#ffa726', '#64dd17', '#2962ff'];
@@ -508,6 +516,9 @@ function PlayState(config, level) {
   this.invaderPose = 0;
   this.invaderStepDistance = 0;
 
+  //  The heartbeat note to play on the next step.
+  this.heartbeatNote = 0;
+
   //  Where a touch drag is taking the ship, if anywhere.
   this.shipTargetX = null;
 
@@ -690,12 +701,17 @@ PlayState.prototype.update = function(game, dt) {
     game.lives = 0;
   }
 
-  //  Swap the invaders' pose each time the fleet moves a step, so they march.
-  //  The faster they go, the faster they march.
-  this.invaderStepDistance += Math.abs(dx) + Math.abs(dy);
-  if (this.invaderStepDistance >= INVADER_STEP) {
-    this.invaderStepDistance -= INVADER_STEP;
+  //  Each time the fleet moves a step, swap the invaders' pose so they march,
+  //  and play the next heartbeat note. The faster they go, the faster both
+  //  go, until steps lengthen to stay under INVADER_MAX_STEPS_PER_SECOND.
+  var moved = Math.abs(dx) + Math.abs(dy);
+  var step = Math.max(INVADER_STEP, moved / dt / INVADER_MAX_STEPS_PER_SECOND);
+  this.invaderStepDistance += moved;
+  if (this.invaderStepDistance >= step) {
+    this.invaderStepDistance = 0;
     this.invaderPose = 1 - this.invaderPose;
+    game.sounds.playNote(HEARTBEAT_NOTES[this.heartbeatNote], 0.12);
+    this.heartbeatNote = (this.heartbeatNote + 1) % HEARTBEAT_NOTES.length;
   }
 
   //  Check for rocket/invader collisions.
@@ -1112,6 +1128,32 @@ Sounds.prototype.loadSound = function(name, url) {
       "because the page is running from the file system, not a webserver.");
     console.log(e);
   }
+};
+
+//  Plays a short, low note, made in code rather than from a sound file. Used
+//  for the heartbeat. Skipped while sound is off, so notes can't pile up and
+//  all play at once when it comes back on.
+Sounds.prototype.playNote = function(frequency, duration) {
+  var context = this.audioContext;
+  if (this.mute === true || context.state !== 'running') {
+    return;
+  }
+
+  //  A square wave with a quick start, held for half the note, then faded,
+  //  so it thumps rather than clicks.
+  var oscillator = context.createOscillator();
+  var volume = context.createGain();
+  var now = context.currentTime;
+  oscillator.type = 'square';
+  oscillator.frequency.value = frequency;
+  volume.gain.setValueAtTime(0.0001, now);
+  volume.gain.exponentialRampToValueAtTime(0.15, now + 0.005);
+  volume.gain.setValueAtTime(0.15, now + duration / 2);
+  volume.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+  oscillator.connect(volume);
+  volume.connect(context.destination);
+  oscillator.start(now);
+  oscillator.stop(now + duration);
 };
 
 Sounds.prototype.playSound = function(name) {
