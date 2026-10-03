@@ -155,6 +155,14 @@ var SHIELD_PIXELS = [
 ];
 var SHIELD_COLOUR = '#64dd17';
 
+//  The game's version, read from the ?v= on this script's link in index.html,
+//  so it's set in one place with each release. Blank if there isn't one.
+var GAME_VERSION = (function() {
+  var script = document.currentScript;
+  var match = script && /[?&]v=([^&]+)/.exec(script.src);
+  return match ? match[1] : '';
+})();
+
 //  The high score is kept in the browser, so it lasts between visits on the
 //  same device. Some browsers block storage, in private browsing for
 //  example; then the game still works, the best just isn't kept.
@@ -208,7 +216,8 @@ function Game() {
     ufoMinInterval: 15,
     ufoMaxInterval: 30,
     touchShipSpeed: 360,
-    shieldCount: 4
+    shieldCount: 4,
+    extraLifeScore: 1500
   };
 
   //  All state is in the variables below.
@@ -244,6 +253,11 @@ function Game() {
   //  to tell whether this game beat it.
   this.highScore = loadHighScore();
   this.highScoreAtStart = this.highScore;
+
+  //  Whether this game's extra life has been given, and how much longer to
+  //  show "Extra life!".
+  this.extraLifeAwarded = false;
+  this.extraLifeMessageTime = 0;
 
   //  Invader colour: the original, or with randomColours on, a new colour
   //  for each wave.
@@ -416,16 +430,25 @@ Game.prototype.newGame = function() {
   this.score = 0;
   this.lives = 3;
   this.highScoreAtStart = this.highScore;
+  this.extraLifeAwarded = false;
+  this.extraLifeMessageTime = 0;
   this.moveToState(new LevelIntroState(1));
 };
 
 //  Adds points to the score, and saves a new high score as soon as it's
-//  reached, so closing the page mid-game doesn't lose it.
+//  reached, so closing the page mid-game doesn't lose it. Reaching
+//  extraLifeScore earns one extra life per game, as in the arcade game.
 Game.prototype.addScore = function(points) {
   this.score += points;
   if (this.score > this.highScore) {
     this.highScore = this.score;
     saveHighScore(this.highScore);
+  }
+  if (this.config.extraLifeScore && !this.extraLifeAwarded && this.score >= this.config.extraLifeScore) {
+    this.extraLifeAwarded = true;
+    this.lives++;
+    this.extraLifeMessageTime = 2;
+    this.sounds.playNote(1047, 0.25, 0.08);
   }
 };
 
@@ -550,6 +573,11 @@ WelcomeState.prototype.draw = function(game, dt, ctx) {
   }
   if (game.highScore > 0) {
     ctx.fillText("High score: " + game.highScore, game.width / 2, game.height / 2 + 64);
+  }
+  if (GAME_VERSION) {
+    ctx.font = "12px Arial";
+    ctx.fillStyle = '#888888';
+    ctx.fillText("Version " + GAME_VERSION, game.width / 2, game.gameBounds.bottom + 40);
   }
 };
 
@@ -924,6 +952,10 @@ PlayState.prototype.update = function(game, dt) {
 
   this.updateUfo(game, dt);
 
+  if (game.extraLifeMessageTime > 0) {
+    game.extraLifeMessageTime -= dt;
+  }
+
   //  Check for a rocket hitting the UFO, for its mystery score.
   for (i = 0; this.ufo && i < this.rockets.length; i++) {
     var shot = this.rockets[i];
@@ -977,10 +1009,9 @@ PlayState.prototype.update = function(game, dt) {
     }
   }
 
-  //  Give each front rank invader a chance to drop a bomb.
-  for (var i = 0; i < this.config.invaderFiles; i++) {
-    var invader = frontRankInvaders[i];
-    if (!invader) continue;
+  //  Give each front rank invader a chance to drop a bomb, in every column.
+  for (var file in frontRankInvaders) {
+    var invader = frontRankInvaders[file];
     var chance = this.bombRate * dt;
     if (chance > Math.random()) {
       //  Fire!
@@ -1102,6 +1133,11 @@ PlayState.prototype.draw = function(game, dt, ctx) {
   ctx.fillText("Lives: " + game.lives + ", Level: " + game.level, game.gameBounds.left, textYpos);
   ctx.textAlign = "center";
   ctx.fillText("Score: " + game.score, game.width / 2, textYpos);
+  if (game.extraLifeMessageTime > 0) {
+    ctx.fillStyle = '#ffd54f';
+    ctx.fillText("Extra life!", game.width / 2, textYpos - 22);
+    ctx.fillStyle = '#ffffff';
+  }
   ctx.textAlign = "right";
   ctx.fillText("High score: " + game.highScore, game.gameBounds.right, textYpos);
 

@@ -48,7 +48,7 @@ On a computer the buttons sit under the game. On a phone or tablet they're in th
 
 ### Rules
 
-- You get three lives. Each bomb that hits your ship costs one.
+- You get three lives. Each bomb that hits your ship costs one. You earn one extra life when your score reaches 1,500, as in the arcade game.
 - If an invader reaches the bottom or crashes into your ship, the game ends right there.
 - Squids are worth 30 points, crabs 20 and octopuses 10, the same as the arcade game. Clear a wave and you get a bonus of 50 × that level.
 - The mystery UFO is usually worth 50 or 100, sometimes 150 and now and then 300. It comes every 15 to 30 seconds, but not once the fleet is down to its last 7 invaders.
@@ -104,6 +104,7 @@ All the tuning sits in the `config` object at the top of [`js/spaceinvaders.js`]
 | `ufoSpeed` | `70` | How fast the mystery UFO flies |
 | `touchShipSpeed` | `360` | Top speed of the ship when you drag it on a touch screen |
 | `shieldCount` | `4` | How many shields there are (`0` for none) |
+| `extraLifeScore` | `1500` | The score that earns the extra life (`0` for none) |
 
 The invaders are drawn in code. `INVADER_TYPES`, near the top of the same file, holds each kind's pixel grids for its two poses and how many points it's worth. Edit a grid to redraw an invader, or add colours to `INVADER_COLOURS`.
 
@@ -126,7 +127,7 @@ invaders/
 
 ## Credits
 
-Invaders is based on [spaceinvaders](https://github.com/dwmkerr/spaceinvaders) by Dave Kerr, which supplies the game engine, the starfield and the core gameplay. This version adds a pixel-art ship, the arcade game's three kinds of invader drawn in code with their marching poses and points, the heartbeat, the speed-up, the mystery UFO and the shields, a saved high score, an option to give every wave a new colour, Pause and Mute buttons, and touch controls for phones and tablets.
+Invaders is based on [spaceinvaders](https://github.com/dwmkerr/spaceinvaders) by Dave Kerr, which supplies the game engine, the starfield and the core gameplay. This version adds a pixel-art ship, the arcade game's three kinds of invader drawn in code with their marching poses and points, the heartbeat, the speed-up, the mystery UFO, the shields and the extra life, a saved high score, an option to give every wave a new colour, Pause and Mute buttons, and touch controls for phones and tablets.
 
 ## License
 
