@@ -5,10 +5,12 @@
   <meta charset="utf-8">
   <title>Space Invaders</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <!-- The ./ stops Vite's build reading these as package names. -->
-  <link href="./css/core.css" type="text/css" rel="stylesheet">
-  <link href="./css/typeography.css" type="text/css" rel="stylesheet">
-  <link href="./css/style.css" rel="stylesheet" type="text/css" />
+  <!-- The ./ stops Vite's build reading these as package names. The ?v=
+       matches the version in package.json: change both with each release,
+       so browsers load that release's files rather than older copies. -->
+  <link href="./css/core.css?v=1.5.1" type="text/css" rel="stylesheet">
+  <link href="./css/typeography.css?v=1.5.1" type="text/css" rel="stylesheet">
+  <link href="./css/style.css?v=1.5.1" rel="stylesheet" type="text/css" />
 </head>
 
 <body>
@@ -25,8 +27,8 @@
     </div>
   </div>
 
-  <script src="js/starfield.js"></script>
-  <script src="js/spaceinvaders.js"></script>
+  <script src="js/starfield.js?v=1.5.1"></script>
+  <script src="js/spaceinvaders.js?v=1.5.1"></script>
   <script>
     //  Create the starfield.
     var container = document.getElementById('starfield');

@@ -36,7 +36,7 @@ Play it in your browser at **[azadmotala.github.io/invaders](https://azadmotala.
 | | Computer | Phone or tablet |
 |---|---|---|
 | Start / play again | <kbd>Space</kbd> | Tap |
-| Move | <kbd>←</kbd> <kbd>→</kbd> | Drag anywhere on the screen |
+| Move | <kbd>←</kbd> <kbd>→</kbd> | Drag anywhere on the screen. The ship follows your finger and stops when you let go |
 | Fire | <kbd>Space</kbd> (hold it down to keep firing) | Keep your finger down |
 | Pause | <kbd>P</kbd> or the **Pause** button | **Pause** button, or switch to another app |
 | Sound on/off | **Mute** button | **Mute** button |
@@ -99,6 +99,7 @@ All the tuning sits in the `config` object at the top of [`js/spaceinvaders.js`]
 | `invaderSpeedUpMax` | `5` | How much faster the last invaders in a wave get (`1` turns the speed-up off) |
 | `ufoMinInterval` / `ufoMaxInterval` | `15` / `30` | Seconds between mystery UFOs |
 | `ufoSpeed` | `70` | How fast the mystery UFO flies |
+| `touchShipSpeed` | `360` | Top speed of the ship when you drag it on a touch screen |
 
 The invaders are drawn in code. `INVADER_TYPES`, near the top of the same file, holds each kind's pixel grids for its two poses and how many points it's worth. Edit a grid to redraw an invader, or add colours to `INVADER_COLOURS`.
 
