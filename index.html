@@ -8,9 +8,16 @@
   <!-- The ./ stops Vite's build reading these as package names. The ?v=
        matches the version in package.json: change both with each release,
        so browsers load that release's files rather than older copies. -->
-  <link href="./css/core.css?v=2.0.0" type="text/css" rel="stylesheet">
-  <link href="./css/typeography.css?v=2.0.0" type="text/css" rel="stylesheet">
-  <link href="./css/style.css?v=2.0.0" rel="stylesheet" type="text/css" />
+  <link href="./css/core.css?v=2.1.0" type="text/css" rel="stylesheet">
+  <link href="./css/typeography.css?v=2.1.0" type="text/css" rel="stylesheet">
+  <link href="./css/style.css?v=2.1.0" rel="stylesheet" type="text/css" />
+  <!-- The neon crab in the browser tab, and on the home screen when the game
+       is added to a phone. The manifest gives Android its icons and name. -->
+  <link href="./icons/favicon-32.png" rel="icon" type="image/png" sizes="32x32">
+  <link href="./icons/favicon-16.png" rel="icon" type="image/png" sizes="16x16">
+  <link href="./icons/apple-touch-icon.png" rel="apple-touch-icon">
+  <link href="./icons/manifest.webmanifest" rel="manifest">
+  <meta name="apple-mobile-web-app-title" content="Invaders">
 </head>
 
 <body>
@@ -37,9 +44,9 @@
     </div>
   </div>
 
-  <script src="js/starfield.js?v=2.0.0"></script>
-  <script src="js/spaceinvaders.js?v=2.0.0"></script>
-  <script src="js/leaderboard.js?v=2.0.0"></script>
+  <script src="js/starfield.js?v=2.1.0"></script>
+  <script src="js/spaceinvaders.js?v=2.1.0"></script>
+  <script src="js/leaderboard.js?v=2.1.0"></script>
   <script>
     //  Create the starfield.
     var container = document.getElementById('starfield');
