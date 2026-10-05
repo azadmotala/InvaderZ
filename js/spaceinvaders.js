@@ -559,20 +559,27 @@ WelcomeState.prototype.draw = function(game, dt, ctx) {
   //  Clear the background.
   ctx.clearRect(0, 0, game.width, game.height);
 
+  //  With a leaderboard, everything moves up to make room for it.
+  var hasBoard = hasLeaderboard(game);
+  var x = game.width / 2;
+  var y = hasBoard ? 175 : game.height / 2 - 40;
+
   ctx.font = "30px Arial";
   ctx.fillStyle = '#ffffff';
   ctx.textBaseline = "middle";
   ctx.textAlign = "center";
-  ctx.fillText("Space Invaders", game.width / 2, game.height / 2 - 40);
+  ctx.fillText("Space Invaders", x, y);
   ctx.font = "16px Arial";
   if (game.touchMode) {
-    ctx.fillText("Tap to start", game.width / 2, game.height / 2);
-    ctx.fillText("Drag anywhere to move. Hold to keep firing.", game.width / 2, game.height / 2 + 30);
+    ctx.fillText("Tap to start", x, y + 40);
+    ctx.fillText("Drag anywhere to move. Hold to keep firing.", x, y + 70);
   } else {
-    ctx.fillText("Press 'Space' or touch to start.", game.width / 2, game.height / 2);
+    ctx.fillText("Press 'Space' or touch to start.", x, y + 40);
   }
-  if (game.highScore > 0) {
-    ctx.fillText("High score: " + game.highScore, game.width / 2, game.height / 2 + 64);
+  if (hasBoard) {
+    drawLeaderboard(game, ctx, y + 100);
+  } else if (game.highScore > 0) {
+    ctx.fillText("High score: " + game.highScore, x, y + 104);
   }
   if (GAME_VERSION) {
     ctx.font = "12px Arial";
@@ -601,22 +608,72 @@ GameOverState.prototype.draw = function(game, dt, ctx) {
   //  Clear the background.
   ctx.clearRect(0, 0, game.width, game.height);
 
+  //  With a leaderboard, everything moves up to make room for it.
+  var hasBoard = hasLeaderboard(game);
+  var x = game.width / 2;
+  var y = hasBoard ? 175 : game.height / 2 - 40;
+
   ctx.font = "30px Arial";
   ctx.fillStyle = '#ffffff';
-  ctx.textBaseline = "center";
+  ctx.textBaseline = "middle";
   ctx.textAlign = "center";
-  ctx.fillText("Game Over!", game.width / 2, game.height / 2 - 40);
+  ctx.fillText("Game Over!", x, y);
   ctx.font = "16px Arial";
-  ctx.fillText("You scored " + game.score + " and got to level " + game.level, game.width / 2, game.height / 2);
+  ctx.fillText("You scored " + game.score + " and got to level " + game.level, x, y + 40);
   if (game.score > game.highScoreAtStart) {
     ctx.fillStyle = '#ffd54f';
-    ctx.fillText("New high score!", game.width / 2, game.height / 2 + 26);
+    ctx.fillText("New high score!", x, y + 66);
     ctx.fillStyle = '#ffffff';
   } else {
-    ctx.fillText("High score: " + game.highScore, game.width / 2, game.height / 2 + 26);
+    ctx.fillText("High score: " + game.highScore, x, y + 66);
   }
-  ctx.fillText(game.touchMode ? "Tap to play again." : "Press 'Space' to play again.", game.width / 2, game.height / 2 + 52);
+  if (hasBoard) {
+    drawLeaderboard(game, ctx, y + 100);
+  }
+  ctx.font = "16px Arial";
+  ctx.fillText(game.touchMode ? "Tap to play again." : "Press 'Space' to play again.", x, hasBoard ? y + 320 : y + 92);
 };
+
+//  Whether this device has a leaderboard to show (see js/leaderboard.js).
+function hasLeaderboard(game) {
+  return !!(game.leaderboard && game.leaderboard.board());
+}
+
+//  Draws the leaderboard's top 10 from y down, picking out the score just
+//  added, and says if the board couldn't be reached. Scores from this device
+//  that are still waiting to go up are shown in grey.
+function drawLeaderboard(game, ctx, y) {
+  var board = game.leaderboard;
+  var entries = board.top();
+  var x = game.width / 2;
+  ctx.textAlign = "center";
+  ctx.font = "14px Arial";
+  ctx.fillStyle = '#ffd54f';
+  ctx.fillText("Leaderboard", x, y);
+  ctx.font = "13px Arial";
+  if (!entries.length) {
+    ctx.fillStyle = '#888888';
+    ctx.fillText(board.status() === 'loading' ? "Loading…" : "No scores yet. Be the first!", x, y + 22);
+  }
+  for (var i = 0; i < entries.length; i++) {
+    var entry = entries[i];
+    var rowY = y + 22 + i * 17;
+    ctx.fillStyle = entry.id === board.highlightId ? '#ffd54f' : (entry.pending ? '#999999' : '#ffffff');
+    ctx.textAlign = "right";
+    ctx.fillText((i + 1) + ".", x - 44, rowY);
+    ctx.textAlign = "left";
+    ctx.fillText(entry.initials, x - 34, rowY);
+    ctx.textAlign = "right";
+    ctx.fillText(entry.score, x + 56, rowY);
+  }
+  if (board.status() === 'offline') {
+    ctx.textAlign = "center";
+    ctx.fillStyle = '#888888';
+    ctx.fillText("Leaderboard offline", x, y + 22 + board.size * 17);
+  }
+  ctx.textAlign = "center";
+  ctx.fillStyle = '#ffffff';
+}
 
 GameOverState.prototype.keyDown = function(game, keyCode) {
   if (keyCode == KEY_SPACE) {

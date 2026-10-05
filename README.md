@@ -58,6 +58,14 @@ The start screen shows which version you're playing. If it's older than the [lat
 - The mystery UFO is usually worth 50 or 100, sometimes 150 and now and then 300. It comes every 15 to 30 seconds, but not once the fleet is down to its last 7 invaders.
 - Your high score is saved in your browser on that device, the moment you beat it. It shows during play, on the start screen and when the game ends.
 
+### Family leaderboard
+
+The game can keep a top 10 shared by a family or group of friends, on any device. Open the game with a private code at the end of the link, like `https://azadmotala.github.io/invaders/?board=yourcode`, and send that link to everyone who should be on the board. Each device remembers the board after opening the link once. Only people who know the code can see the board or add to it.
+
+- When a score makes the top 10, you're asked for your initials: three letters, like the arcade game. The last ones used on that device are filled in, so on a shared computer just type over them.
+- The first time a device opens a board, it offers the high score it already has.
+- No connection? A score that makes the board waits on the device, shown in grey, and goes up when the board can be reached again. The game plays the same either way.
+
 ### It gets harder
 
 Every level, the invaders move faster, drop bombs more often, and the bombs fall faster. The fleet gets bigger too. You get a faster trigger finger to keep up.
@@ -114,6 +122,10 @@ The invaders are drawn in code. `INVADER_TYPES`, near the top of the same file, 
 
 Add `?debug=true` to the URL and the game outlines the play area.
 
+### The leaderboard's Firebase project
+
+The leaderboard is kept in Firebase. `js/leaderboard.js` names the project (`API_KEY` and `PROJECT_ID`); those identify it and are meant to be public. What can be read and added is decided by [`firestore.rules`](firestore.rules), which go in the Firebase console under Firestore Database → Rules. To use your own project, create one with a Firestore database and Anonymous sign-in turned on, put its values in `js/leaderboard.js`, and publish the rules.
+
 ### Releasing a version
 
 Set the new version in two places: `"version"` in `package.json`, and the `?v=` at the end of each stylesheet and script link in `index.html`. The `?v=` makes browsers load the new files instead of older cached copies, and the start screen reads its version from there.
@@ -125,17 +137,19 @@ invaders/
 ├── index.html            Page, canvas, input handling and touch-screen layout
 ├── js/
 │   ├── spaceinvaders.js  Game loop, ship, invaders, UFO, shields, scoring and sound
+│   ├── leaderboard.js    Family leaderboard in Firebase, with a queue for offline play
 │   └── starfield.js      Scrolling star background
 ├── css/                  Page styles
 ├── images/               Ship sprite, and invader and UFO pictures for the README
 ├── sounds/               Sound effects
 ├── docs/                 Screenshot
+├── firestore.rules       Who can read and add leaderboard scores
 └── vite.config.js        Settings for npm run build
 ```
 
 ## Credits
 
-Invaders is based on [spaceinvaders](https://github.com/dwmkerr/spaceinvaders) by Dave Kerr, which supplies the game engine, the starfield and the core gameplay. This version adds a pixel-art ship, the arcade game's three kinds of invader drawn in code with their marching poses and points, the heartbeat, the speed-up, the mystery UFO, the shields and the extra life, a saved high score, an option to give every wave a new colour, Pause and Mute buttons, and touch controls for phones and tablets.
+Invaders is based on [spaceinvaders](https://github.com/dwmkerr/spaceinvaders) by Dave Kerr, which supplies the game engine, the starfield and the core gameplay. This version adds a pixel-art ship, the arcade game's three kinds of invader drawn in code with their marching poses and points, the heartbeat, the speed-up, the mystery UFO, the shields and the extra life, a saved high score, a family leaderboard, an option to give every wave a new colour, Pause and Mute buttons, and touch controls for phones and tablets.
 
 ## License
 
