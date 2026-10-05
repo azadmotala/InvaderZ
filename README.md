@@ -19,7 +19,7 @@
 
 <a href="https://azadmotala.github.io/invaders/"><img src="docs/screenshot.png" alt="Invaders gameplay: rows of green squid, crab and octopus invaders over a starfield, a red mystery UFO crossing above them, four chipped green shields, and the player's ship firing up from below" width="480"></a>
 
-[How to play](#how-to-play) · [Run it locally](#run-it-locally) · [Tweak it](#tweak-it) · [What's new](https://github.com/azadmotala/invaders/releases) · [Credits](#credits) · [License](#license)
+[How to play](#how-to-play) · [Family leaderboard](#family-leaderboard) · [Run it locally](#run-it-locally) · [Tweak it](#tweak-it) · [What's new](https://github.com/azadmotala/invaders/releases) · [Credits](#credits) · [License](#license)
 
 </div>
 
@@ -61,6 +61,8 @@ The start screen shows which version you're playing. If it's older than the [lat
 ### Family leaderboard
 
 The game can keep a top 10 shared by a family or group of friends, on any device. Open the game with a private code at the end of the link, like `https://azadmotala.github.io/invaders/?board=yourcode`, and send that link to everyone who should be on the board. Each device remembers the board after opening the link once. Only people who know the code can see the board or add to it.
+
+<img src="docs/leaderboard.png" alt="The start screen with a family leaderboard: a top 10 of three-letter initials and scores under the title" width="360">
 
 - When a score makes the top 10, you're asked for your initials: three letters, like the arcade game. The last ones used on that device are filled in, so on a shared computer just type over them.
 - The first time a device opens a board, it offers the high score it already has.
