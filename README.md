@@ -27,7 +27,7 @@
 
 The fleet marches side to side, drops a row every time it hits the edge, and bombs you on the way down. Shoot every last one and the next wave turns up faster, bigger and quicker to bomb. Let them reach the bottom and it's over.
 
-The fleet lines up like the 1978 arcade game: squids along the top, crabs in the middle and octopuses in the bottom two rows, all marching in two poses to a four-note heartbeat. They come in their original green. Switch on random colours and every wave turns up in a different colour from the last.
+The fleet lines up like the 1978 arcade game: squids along the top, crabs in the middle and octopuses in the bottom two rows, all marching in two poses to a four-note heartbeat. They come in their original green. Switch on random colours and every wave turns up in a different colour from the last, with the crab in the browser tab changing to match.
 
 Every so often a red mystery UFO warbles across the top. Shoot it for a mystery score.
 
@@ -37,7 +37,7 @@ Four shields stand between you and the fleet. Bombs blast holes in them from abo
 
 Play it in your browser at **[azadmotala.github.io/invaders](https://azadmotala.github.io/invaders/)**. Nothing to install. On a phone or tablet, the game fills the screen and you steer with your thumb.
 
-To keep it on your home screen, open the game and tap Share → **Add to Home Screen** on an iPhone or iPad, or choose **Add to home screen** from Chrome's ⋮ menu on Android. It gets its own neon crab icon.
+To keep it on your home screen, open the game and tap Share → **Add to Home Screen** on an iPhone or iPad, or choose **Add to home screen** from Chrome's ⋮ menu on Android. It gets a crab invader as its icon.
 
 | | Computer | Phone or tablet |
 |---|---|---|
@@ -154,7 +154,7 @@ invaders/
 
 ## Credits
 
-Invaders is based on [spaceinvaders](https://github.com/dwmkerr/spaceinvaders) by Dave Kerr, which supplies the game engine, the starfield and the core gameplay. This version adds a pixel-art ship, the arcade game's three kinds of invader drawn in code with their marching poses and points, the heartbeat, the speed-up, the mystery UFO, the shields and the extra life, a saved high score, a family leaderboard, an option to give every wave a new colour, Pause and Mute buttons, touch controls for phones and tablets, and a neon crab icon for the browser tab and home screen.
+Invaders is based on [spaceinvaders](https://github.com/dwmkerr/spaceinvaders) by Dave Kerr, which supplies the game engine, the starfield and the core gameplay. This version adds a pixel-art ship, the arcade game's three kinds of invader drawn in code with their marching poses and points, the heartbeat, the speed-up, the mystery UFO, the shields and the extra life, a saved high score, a family leaderboard, an option to give every wave a new colour, Pause and Mute buttons, touch controls for phones and tablets, and a crab icon for the browser tab and home screen.
 
 ## License
 

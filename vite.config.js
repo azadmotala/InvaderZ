@@ -4,8 +4,8 @@ import { join } from 'path'
 
 //  The game loads its scripts with plain <script> tags, and its images and
 //  sounds by path at runtime, so Vite never sees them. Copy them into the
-//  build as-is. The home-screen icons are named inside icons/manifest.webmanifest,
-//  which Vite doesn't read, so copy those too.
+//  build as-is. The tab and home-screen icons in icons/ are copied too, and
+//  linked as they are (see keepIconLinks).
 const runtimeDirs = ['js', 'images', 'sounds', 'icons']
 
 function copyRuntimeFiles() {
@@ -26,21 +26,34 @@ function copyRuntimeFiles() {
           })
         }
       }
-    },
-    //  Vite turns the manifest link into an inline data: URL, which can't
-    //  find the icons beside it. Point it back at the copied manifest.
-    transformIndexHtml: {
-      enforce: 'post',
-      transform(html) {
-        return html.replace(/<link href="[^"]*" rel="manifest">/,
-          '<link href="./icons/manifest.webmanifest" rel="manifest">')
-      }
     }
   }
+}
+
+//  The icon and manifest links in index.html point into icons/, copied as-is
+//  above. Vite would rewrite them, inlining the small icons and the manifest
+//  as data: URLs, and an inlined manifest can't find the icons it names. So
+//  hide the links from Vite while it works, then put them back unchanged.
+function keepIconLinks() {
+  return [{
+    name: 'hide-icon-links',
+    apply: 'build',
+    transformIndexHtml: {
+      enforce: 'pre',
+      transform: html => html.replace(/ href="\.\/icons\//g, ' data-icon-href="./icons/')
+    }
+  }, {
+    name: 'restore-icon-links',
+    apply: 'build',
+    transformIndexHtml: {
+      enforce: 'post',
+      transform: html => html.replace(/ data-icon-href="/g, ' href="')
+    }
+  }]
 }
 
 export default defineConfig({
   //  Relative paths, so the build works from any folder, e.g. GitHub Pages' /invaders/.
   base: './',
-  plugins: [copyRuntimeFiles()]
+  plugins: [copyRuntimeFiles(), keepIconLinks()]
 })
