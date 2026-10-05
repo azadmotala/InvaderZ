@@ -4,8 +4,9 @@ import { join } from 'path'
 
 //  The game loads its scripts with plain <script> tags, and its images and
 //  sounds by path at runtime, so Vite never sees them. Copy them into the
-//  build as-is.
-const runtimeDirs = ['js', 'images', 'sounds']
+//  build as-is. The home-screen icons are named inside icons/manifest.webmanifest,
+//  which Vite doesn't read, so copy those too.
+const runtimeDirs = ['js', 'images', 'sounds', 'icons']
 
 function copyRuntimeFiles() {
   let root
@@ -24,6 +25,15 @@ function copyRuntimeFiles() {
             source: readFileSync(join(root, dir, file))
           })
         }
+      }
+    },
+    //  Vite turns the manifest link into an inline data: URL, which can't
+    //  find the icons beside it. Point it back at the copied manifest.
+    transformIndexHtml: {
+      enforce: 'post',
+      transform(html) {
+        return html.replace(/<link href="[^"]*" rel="manifest">/,
+          '<link href="./icons/manifest.webmanifest" rel="manifest">')
       }
     }
   }
