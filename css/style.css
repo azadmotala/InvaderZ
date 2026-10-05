@@ -18,6 +18,7 @@ html {
 }
 
 #gamecontainer {
+	position: relative;
 	width: 800px;
 	margin-left: auto;
 	margin-right: auto;
@@ -45,7 +46,8 @@ html {
 }
 
 /* Fixed widths, so changing labels never moves the buttons or the game. */
-#buttons button {
+#buttons button,
+#initials button {
 	width: 84px;
 	height: 40px;
 	padding: 0;
@@ -67,9 +69,66 @@ html {
 }
 
 @media (hover: hover) {
-	#buttons button:hover {
+	#buttons button:hover,
+	#initials button:hover {
 		background: rgba(255, 255, 255, 0.22);
 	}
+}
+
+/* Asks for initials, over the middle of the game, when a score makes the
+   leaderboard. */
+#initials {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	width: 240px;
+	padding: 16px;
+	text-align: center;
+	color: #ffffff;
+	font: 15px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	background: #111111;
+	border: 1px solid rgba(255, 255, 255, 0.35);
+	border-radius: 12px;
+}
+
+#initials[hidden] {
+	display: none;
+}
+
+#initials p {
+	margin: 0 0 10px;
+	line-height: 20px;
+}
+
+/* 28px also stops phones zooming in when the box is tapped. */
+#initialsInput {
+	width: 4.5em;
+	padding: 2px 0 2px 0.3em;
+	font: 28px "Courier New", Courier, monospace;
+	letter-spacing: 0.3em;
+	text-align: center;
+	text-transform: uppercase;
+	color: #ffd54f;
+	background: transparent;
+	border: none;
+	border-bottom: 2px solid rgba(255, 255, 255, 0.5);
+	border-radius: 0;
+	outline: none;
+	-webkit-user-select: text;
+	user-select: text;
+}
+
+#initials #initialsHint {
+	margin: 6px 0 12px;
+	font-size: 13px;
+	color: #999999;
+}
+
+#initials div {
+	display: flex;
+	justify-content: center;
+	gap: 8px;
 }
 
 /* Touch screens: the game is scaled to fit (see fitGame in index.html),
