@@ -275,6 +275,10 @@ function Game() {
     });
   }
   this.ufoSprite = drawPixelSprite(UFO_PIXELS, UFO_COLOUR);
+
+  //  Which colour the crab in the browser tab is drawn in. None yet.
+  this.tabIconColour = null;
+  this.updateTabIcon();
 }
 
 //  Initialis the Game with a canvas.
@@ -418,10 +422,34 @@ Game.prototype.toggleRandomColours = function() {
 Game.prototype.pickInvaderColour = function() {
   if (!this.randomColours) {
     this.invaderColour = ORIGINAL_INVADER_COLOUR;
+  } else {
+    var colour = Math.floor(Math.random() * (INVADER_COLOURS.length - 1));
+    this.invaderColour = colour >= this.invaderColour ? colour + 1 : colour;
+  }
+  this.updateTabIcon();
+};
+
+//  Draws the crab in the browser tab in the invaders' colour, from the same
+//  sprite as the crabs in the game. icons/favicon-32.png is the green one,
+//  shown until this runs and in browsers that don't redraw tab icons.
+Game.prototype.updateTabIcon = function() {
+  var link = document.getElementById('tabIcon');
+  if (!link || this.tabIconColour === this.invaderColour) {
     return;
   }
-  var colour = Math.floor(Math.random() * (INVADER_COLOURS.length - 1));
-  this.invaderColour = colour >= this.invaderColour ? colour + 1 : colour;
+  var size = 32;
+  var sprite = this.invaderSprites.crab[this.invaderColour][0];
+  var icon = document.createElement('canvas');
+  icon.width = icon.height = size;
+  var ctx = icon.getContext('2d');
+  ctx.fillStyle = '#000000';
+  ctx.fillRect(0, 0, size, size);
+  //  Two icon pixels to each sprite pixel, kept sharp, in the middle.
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(sprite, (size - sprite.width * 2) / 2, (size - sprite.height * 2) / 2,
+    sprite.width * 2, sprite.height * 2);
+  link.href = icon.toDataURL('image/png');
+  this.tabIconColour = this.invaderColour;
 };
 
 //  Starts a new game from level 1.
