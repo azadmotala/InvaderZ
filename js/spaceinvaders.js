@@ -1152,8 +1152,12 @@ PlayState.prototype.draw = function(game, dt, ctx) {
   // ctx.fillStyle = '#999999';
   // ctx.fillRect(this.ship.x - (this.ship.width / 2), this.ship.y - (this.ship.height / 2), this.ship.width, this.ship.height);
   //  Positions are centres (collisions, rockets and bombs all use them that
-  //  way), so draw sprites centred on them.
-  ctx.drawImage(this.ship.image, this.ship.x - this.ship.width / 2, this.ship.y - this.ship.height / 2, this.ship.width, this.ship.height);
+  //  way), so draw sprites centred on them. The ship waits for its picture:
+  //  drawing one that's still loading shows nothing, and one that failed to
+  //  load throws, which would stop the rest of the screen being drawn.
+  if (this.ship.image.complete && this.ship.image.naturalWidth > 0) {
+    ctx.drawImage(this.ship.image, this.ship.x - this.ship.width / 2, this.ship.y - this.ship.height / 2, this.ship.width, this.ship.height);
+  }
 
   //  Draw invaders.
   // ctx.fillStyle = '#006600';
@@ -1347,14 +1351,25 @@ LevelIntroState.prototype.draw = function(game, dt, ctx) {
   The ship has a position and that's about it.
 
 */
+
+//  The ship's picture, loaded once as the page opens and shared by every
+//  ship, so starting a game after the tab has sat idle doesn't have to fetch
+//  it again.
+var SHIP_IMAGE_URL = 'images/player.png';
+var SHIP_IMAGE = new Image();
+SHIP_IMAGE.src = SHIP_IMAGE_URL;
+
 function Ship(x, y) {
   this.x = x;
   this.y = y;
   //  The same shape as images/player.png (50x48), so it isn't squashed.
   this.width = 20;
   this.height = 19;
-  this.image = new Image();
-  this.image.src = `images/player.png`;
+  //  If the picture failed to load, try again for this wave.
+  if (SHIP_IMAGE.complete && SHIP_IMAGE.naturalWidth === 0) {
+    SHIP_IMAGE.src = SHIP_IMAGE_URL;
+  }
+  this.image = SHIP_IMAGE;
 }
 
 /*
